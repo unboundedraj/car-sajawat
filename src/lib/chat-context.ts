@@ -97,6 +97,9 @@ Instagram: ${contact.instagram || "n/a"}
 About: ${about.body.replace(/\s+/g, " ")}
 Why choose us: ${about.highlights.join("; ") || "not listed"}
 
+# Booking & payment
+Advance payments are made by UPI. Once an enquiry is discussed, the customer can pay the advance by scanning the UPI QR code on the Contact page (/contact). After paying they should send a screenshot of the payment on our WhatsApp number and the team will take it from there. Never tell customers to pay anyone who contacts them outside our official WhatsApp or phone number.
+
 # Current offers
 ${offers.length ? offers.map((o) => `- ${o.title}${o.badge ? ` [${o.badge}]` : ""}`).join("\n") : "- No active offers right now."}
 
