@@ -6,9 +6,9 @@ import { ButtonLink } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { SmartImage } from "@/components/ui/smart-image";
-import { youtubeThumb } from "@/lib/media";
 import type { AboutContent, CatalogItem, ContactContent, MediaAsset, TeamMember, Testimonial } from "@/lib/types";
-import { telLink, whatsappLink } from "@/lib/utils";
+import { masonryClass, telLink, whatsappLink } from "@/lib/utils";
+import { MediaThumb } from "@/components/gallery/media-thumb";
 import { TeamCard } from "./team-card";
 
 // ── Services: bento grid ────────────────────────────────────
@@ -220,42 +220,25 @@ export function GalleryTeaser({ media }: { media: MediaAsset[] }) {
             </ButtonLink>
           }
         />
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:grid-rows-2">
-          {list.map((m, i) => {
-            const thumb = m.kind === "youtube" ? youtubeThumb(m.url) : m.kind === "image" ? m.url : null;
-            return (
-              <Reveal
-                key={m.id}
-                delay={i * 0.06}
-                className={i === 0 ? "col-span-2 row-span-2 aspect-square lg:aspect-auto" : "aspect-square"}
-              >
-                <Link href="/gallery" className="group relative block size-full overflow-hidden rounded-2xl border border-line bg-surface-2">
-                  {thumb ? (
-                    <SmartImage
-                      src={thumb}
-                      alt={m.title ?? "Car Sajawat work"}
-                      fill
-                      sizes={i === 0 ? "(min-width: 1024px) 50vw, 100vw" : "(min-width: 1024px) 25vw, 50vw"}
-                      className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                  ) : (
-                    <video src={`${m.url}#t=0.5`} muted playsInline preload="metadata" className="absolute inset-0 size-full object-cover" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                  {m.kind !== "image" && (
-                    <span className="absolute top-1/2 left-1/2 grid size-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-accent/90 text-accent-fg">
-                      <Play className="size-5 fill-current" />
-                    </span>
-                  )}
-                  {m.title && (
-                    <p className="absolute right-4 bottom-4 left-4 translate-y-2 text-sm font-semibold text-white opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
-                      {m.title}
-                    </p>
-                  )}
-                </Link>
-              </Reveal>
-            );
-          })}
+        <div className={masonryClass(list.length)}>
+          {list.map((m, i) => (
+            <Reveal key={m.id} delay={i * 0.06} className="mb-3 break-inside-avoid sm:mb-4">
+              <Link href="/gallery" className="group relative block overflow-hidden rounded-2xl border border-line bg-surface-2">
+                <MediaThumb media={m} sizes={list.length < 3 ? "(min-width: 640px) 50vw, 100vw" : "(min-width: 1024px) 25vw, 50vw"} />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                {m.kind !== "image" && (
+                  <span className="absolute top-1/2 left-1/2 grid size-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-accent/90 text-accent-fg">
+                    <Play className="size-5 fill-current" />
+                  </span>
+                )}
+                {m.title && (
+                  <p className="absolute right-4 bottom-4 left-4 translate-y-2 text-sm font-semibold text-white opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+                    {m.title}
+                  </p>
+                )}
+              </Link>
+            </Reveal>
+          ))}
         </div>
       </div>
     </section>
