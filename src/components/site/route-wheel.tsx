@@ -26,7 +26,7 @@ export function Wheel({ className }: { className?: string }) {
       </defs>
 
       {/* Spinning: tyre, brake disc */}
-      <g className="origin-center animate-[spin_0.55s_linear_infinite] [transform-box:fill-box]">
+      <g className="wheel-spin">
         <circle cx="100" cy="100" r="96" fill="#0d0d0f" />
         <circle cx="100" cy="100" r="88" fill="none" stroke="#26262b" strokeWidth="12" strokeDasharray="7 5" />
         <circle cx="100" cy="100" r="80" fill="#151518" />
@@ -44,7 +44,7 @@ export function Wheel({ className }: { className?: string }) {
       </text>
 
       {/* Spinning: rim + spokes + hub */}
-      <g className="origin-center animate-[spin_0.55s_linear_infinite] [transform-box:fill-box]">
+      <g className="wheel-spin">
         <circle cx="100" cy="100" r="78" fill="none" stroke="url(#rw-metal)" strokeWidth="5" />
         {SPOKES.map((deg) => (
           <g key={deg} transform={`rotate(${deg} 100 100)`}>

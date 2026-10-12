@@ -102,6 +102,16 @@
   }
 }
 
+/* Page-transition wheel: rotates around each SVG group's own centre */
+.wheel-spin {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: wheel-rotate 0.55s linear infinite;
+}
+@keyframes wheel-rotate {
+  to { transform: rotate(360deg); }
+}
+
 /* Speed streaks behind the page-transition wheel */
 @keyframes wheel-streak {
   0% { transform: translateX(40%); opacity: 0; }
@@ -203,5 +213,10 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  /* The transition wheel is a loading indicator, so it keeps turning, just slower */
+  .wheel-spin {
+    animation-duration: 1.1s !important;
+    animation-iteration-count: infinite !important;
   }
 }
