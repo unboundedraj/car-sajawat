@@ -32,6 +32,24 @@ export function enquiryMessage(businessName: string, interest?: string) {
   return `Hi ${businessName}! 👋\n${intro}\n\nMy details:\n*Name:* \n*Car model:* \n*Year:* \n*Requirement:* `;
 }
 
+/** The message sent from the website popup, with the visitor's answers filled in. */
+export function whatsappMessageFrom(
+  businessName: string,
+  d: { name: string; car: string; year: string; requirement: string },
+  interest?: string,
+) {
+  const intro = interest ? `I'm interested in *${interest}*.` : "I'd like to make an enquiry.";
+  return [
+    `Hi ${businessName}! 👋`,
+    intro,
+    "",
+    `*Name:* ${d.name}`,
+    `*Car model:* ${d.car}`,
+    ...(d.year ? [`*Year:* ${d.year}`] : []),
+    `*Requirement:* ${d.requirement}`,
+  ].join("\n");
+}
+
 /** "919324067900" → "+91 93240 67900" (other numbers are shown as +digits) */
 export function formatPhone(digits: string) {
   const d = digits.replace(/\D/g, "");
