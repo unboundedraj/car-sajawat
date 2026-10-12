@@ -6,7 +6,8 @@ import { redirect } from "next/navigation";
 import { refresh, updateTag } from "next/cache";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
-import { TAGS } from "@/lib/data";
+import { TAGS, getSiteContent } from "@/lib/data";
+import { gemini, isBusyError, withModelFallback } from "@/lib/gemini";
 import {
   catalogSchema,
   categorySchema,
@@ -177,6 +178,71 @@ export async function deleteOffer(id: string): Promise<ActionResult> {
     done(TAGS.offers);
     return { ok: true };
   } catch (e) {
+    return fail(e);
+  }
+}
+
+// ── AI writing help ─────────────────────────────────────────
+
+const suggestSchema = z.object({
+  target: z.enum(["service", "product", "category", "team"]),
+  /** For categories: which list it belongs to */
+  categoryKind: z.enum(["service", "product"]).optional(),
+  name: z.string().trim().min(2, "Enter a name first").max(120),
+  category: z.string().trim().max(60).optional(),
+  tagline: z.string().trim().max(200).optional(),
+  /** For team members: their job title */
+  role: z.string().trim().max(80).optional(),
+});
+
+/** Drafts a description from the title using Gemini. The admin reviews/edits it before saving. */
+export async function suggestDescription(input: unknown): Promise<ActionResult<{ text: string }>> {
+  await requireAdmin();
+  try {
+    const { target, categoryKind, name, category, tagline, role } = suggestSchema.parse(input);
+    if (target === "team" && !role) throw new Error("Enter the role first. The bio is written from the name and role.");
+    const client = gemini();
+    if (!client) throw new Error("Add GEMINI_API_KEY to the environment to use AI suggestions.");
+    const { contact } = await getSiteContent();
+
+    const isTeam = target === "team";
+    const what = isTeam
+      ? `a team member named "${name}" whose role is "${role}"`
+      : target === "category"
+        ? `a ${categoryKind === "product" ? "product" : "service"} category called "${name}"`
+        : `a ${target} called "${name}"${category ? ` in the "${category}" category` : ""}${tagline ? ` (tagline: "${tagline}")` : ""}`;
+    const length = isTeam
+      ? "1–2 short sentences (max 35 words), written in the third person, about what this person does at the studio and what customers can count on them for"
+      : target === "category"
+        ? "1–2 sentences (max 45 words) summarising what this category covers"
+        : "2–3 short paragraphs (60–110 words total) covering what it is, the key benefits, and who it suits";
+
+    const systemInstruction = [
+      isTeam
+        ? `You write short team-member bios for the "Our team" section of the ${contact.businessName} website, a car accessories and modification studio in ${contact.address || "India"}.`
+        : `You write product and service copy for ${contact.businessName}, a car accessories and modification studio in ${contact.address || "India"}.`,
+      `Length: ${length}.`,
+      "Tone: confident, friendly, plain English for Indian car owners. No hype words like \"revolutionary\".",
+      isTeam
+        ? "Base it ONLY on the name and role. Do NOT invent years of experience, past employers, certifications, awards, qualifications, hobbies or personal details. Never guess gender: do not use he/him/his/she/her. Refer to the person by their first name, or with \"they\"/\"their\"."
+        : "Do NOT invent prices, discounts, warranties, durations, brand names, certifications or statistics.",
+      "Output plain text only: no markdown, no headings, no bullet points, no quotes around the text. Separate paragraphs with a blank line.",
+    ].join("\n");
+
+    const res = await withModelFallback((model) =>
+      client.models.generateContent({
+        model,
+        contents: isTeam ? `Write the bio for ${what}.` : `Write the website description for ${what}.`,
+        config: { systemInstruction, temperature: 0.7, maxOutputTokens: 1024 },
+      }),
+    );
+    const text = (res.text ?? "").trim().replace(/^["“]|["”]$/g, "");
+    if (!text) throw new Error("Gemini didn't return a suggestion. Try again.");
+    return { ok: true, data: { text } };
+  } catch (e) {
+    if (isBusyError(e)) {
+      return { ok: false, error: "Gemini is busy right now. Please try again in a moment." };
+    }
     return fail(e);
   }
 }

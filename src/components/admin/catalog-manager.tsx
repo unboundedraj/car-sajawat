@@ -5,6 +5,7 @@ import { ExternalLink, FolderPlus, Loader2, Pencil, Plus, Search, Star, Tags, Tr
 import { toast } from "sonner";
 import { deleteCatalogItem, deleteCategory, saveCatalogItem, saveCategory } from "@/app/admin/actions";
 import { CategoryIcon } from "@/components/catalog/catalog-card";
+import { AiSuggestButton } from "./ai-suggest";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/price";
 import type { CatalogInput, CategoryInput } from "@/lib/schemas";
@@ -290,6 +291,13 @@ export function CatalogManager({ items, categories }: { items: CatalogItem[]; ca
               rows={3}
               value={editingCat.description}
               onChange={(v) => setEditingCat({ ...editingCat, description: v })}
+              action={
+                <AiSuggestButton
+                  input={{ target: "category", categoryKind: editingCat.kind, name: editingCat.name }}
+                  current={editingCat.description}
+                  onResult={(text) => setEditingCat((c) => (c ? { ...c, description: text } : c))}
+                />
+              }
               hint="Shown when visitors filter by this category, and in the PDF catalogue."
             />
             <NumberInput label="Display order" value={editingCat.sort_order} onChange={(v) => setEditingCat({ ...editingCat, sort_order: v })} />
@@ -377,7 +385,24 @@ export function CatalogManager({ items, categories }: { items: CatalogItem[]; ca
               </p>
             </div>
 
-            <TextArea label="Description" rows={6} value={editing.description} onChange={(v) => set({ description: v })} />
+            <TextArea
+              label="Description"
+              rows={6}
+              value={editing.description}
+              onChange={(v) => set({ description: v })}
+              action={
+                <AiSuggestButton
+                  input={{
+                    target: editing.kind,
+                    name: editing.name,
+                    category: categories.find((c) => c.id === editing.category_id)?.name,
+                    tagline: editing.tagline,
+                  }}
+                  current={editing.description}
+                  onResult={(text) => set({ description: text })}
+                />
+              }
+            />
             <StringList label="Key features" values={editing.features} onChange={(v) => set({ features: v })} placeholder="e.g. 5-year warranty" />
             <MediaField label="Cover image" folder="catalog" value={editing.cover_image} onChange={(v) => set({ cover_image: v })} hint="Used on cards. Landscape 4:3 works best." />
             <MediaList label="Photo gallery" folder="catalog" values={editing.images} onChange={(v) => set({ images: v })} />

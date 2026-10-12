@@ -10,13 +10,28 @@ import { cn, whatsappLink } from "@/lib/utils";
 type Message = { role: "user" | "model"; text: string };
 
 /** Tiny formatter for model replies: **bold**, bullet lists, paragraphs, internal links. */
+const linkClass = "font-medium text-accent underline underline-offset-2";
+// Only site-internal links are rendered as links; anything else stays plain text
+const INTERNAL = /^\/(services|catalog\.pdf|contact|gallery)/;
+
+/** Tiny formatter for model replies: **bold**, [text](/internal-link), bare /services/… and /catalog.pdf paths. */
 function renderInline(text: string): ReactNode[] {
-  return text.split(/(\*\*[^*]+\*\*|\/services\/[a-z0-9-]+)/g).map((part, i) => {
-    if (part.startsWith("**") && part.endsWith("**")) return <strong key={i}>{part.slice(2, -2)}</strong>;
-    if (part.startsWith("/services/"))
+  return text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)\s]+\)|\/services\/[a-z0-9-]+|\/catalog\.pdf)/g).map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**")) return <strong key={i}>{renderInline(part.slice(2, -2))}</strong>;
+    const md = part.match(/^\[([^\]]+)\]\(([^)\s]+)\)$/);
+    if (md) {
+      return INTERNAL.test(md[2]) ? (
+        <a key={i} href={md[2]} className={linkClass}>
+          {md[1]}
+        </a>
+      ) : (
+        <Fragment key={i}>{md[1]}</Fragment>
+      );
+    }
+    if (part.startsWith("/services/") || part === "/catalog.pdf")
       return (
-        <a key={i} href={part} className="font-medium text-accent underline underline-offset-2">
-          {part}
+        <a key={i} href={part} className={linkClass}>
+          {part === "/catalog.pdf" ? "PDF catalogue" : part}
         </a>
       );
     return <Fragment key={i}>{part}</Fragment>;

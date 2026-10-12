@@ -1,7 +1,7 @@
-import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 import { buildChatSystemPrompt } from "@/lib/chat-context";
 import { getSiteContent } from "@/lib/data";
+import { gemini, withModelFallback } from "@/lib/gemini";
 
 export const maxDuration = 30;
 
@@ -31,11 +31,9 @@ function rateLimited(ip: string) {
   return recent.length > LIMIT;
 }
 
-let client: GoogleGenAI | null = null;
-
 export async function POST(request: Request) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
+  const client = gemini();
+  if (!client) {
     return new Response("The assistant isn't configured yet. Please reach us on WhatsApp!", { status: 503 });
   }
 
@@ -58,18 +56,20 @@ export async function POST(request: Request) {
   // Gemini expects the conversation to start with a user turn
   const messages = parsed.messages.slice(parsed.messages.findIndex((m) => m.role === "user"));
 
-  client ??= new GoogleGenAI({ apiKey });
-
   try {
-    const stream = await client.models.generateContentStream({
-      model: process.env.GEMINI_MODEL || "gemini-flash-latest",
-      contents: messages.map((m) => ({ role: m.role, parts: [{ text: m.text }] })),
-      config: {
-        systemInstruction: await buildChatSystemPrompt(),
-        temperature: 0.5,
-        maxOutputTokens: 600,
-      },
-    });
+    const systemInstruction = await buildChatSystemPrompt();
+    const stream = await withModelFallback((model) =>
+      client.models.generateContentStream({
+        model,
+        contents: messages.map((m) => ({ role: m.role, parts: [{ text: m.text }] })),
+        config: {
+          systemInstruction,
+          temperature: 0.5,
+          // Room for "thinking" models plus a full catalogue answer
+          maxOutputTokens: 1024,
+        },
+      }),
+    );
 
     const encoder = new TextEncoder();
     const body = new ReadableStream<Uint8Array>({

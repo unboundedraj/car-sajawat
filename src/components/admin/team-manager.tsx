@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import type { TeamInput } from "@/lib/schemas";
 import type { TeamMember } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { AiSuggestButton } from "./ai-suggest";
 import { Drawer, IconButton, MediaField, NumberInput, TextArea, TextInput, Toggle } from "./fields";
 import { confirmDelete, useAdminAction } from "./use-action";
 
@@ -62,7 +63,20 @@ export function TeamManager({ team }: { team: TeamMember[] }) {
           <>
             <TextInput label="Name" value={editing.name} onChange={(v) => setEditing({ ...editing, name: v })} />
             <TextInput label="Role" value={editing.role} onChange={(v) => setEditing({ ...editing, role: v })} placeholder="PPF Specialist" />
-            <TextArea label="Short bio" rows={3} value={editing.bio} onChange={(v) => setEditing({ ...editing, bio: v })} />
+            <TextArea
+              label="Short bio"
+              rows={3}
+              value={editing.bio}
+              onChange={(v) => setEditing({ ...editing, bio: v })}
+              hint="Shown under their name on the Team section. Fill in name and role first, then use Write with AI."
+              action={
+                <AiSuggestButton
+                  input={{ target: "team", name: editing.name, role: editing.role }}
+                  current={editing.bio}
+                  onResult={(text) => setEditing((m) => (m ? { ...m, bio: text } : m))}
+                />
+              }
+            />
             <MediaField label="Photo" folder="team" value={editing.photo_url} onChange={(v) => setEditing({ ...editing, photo_url: v })} hint="Portrait (4:5) works best." />
             <Toggle label="Visible on website" checked={editing.is_active} onChange={(v) => setEditing({ ...editing, is_active: v })} />
             <NumberInput label="Display order" value={editing.sort_order} onChange={(v) => setEditing({ ...editing, sort_order: v })} />

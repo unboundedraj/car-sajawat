@@ -11,10 +11,26 @@ import { uploadFile } from "./upload";
 export const inputClass =
   "w-full rounded-xl border border-line bg-bg px-3.5 py-2.5 text-sm outline-none transition-colors placeholder:text-muted/60 focus:border-accent";
 
-export function Field({ label, hint, children, className }: { label: string; hint?: ReactNode; children: ReactNode; className?: string }) {
+export function Field({
+  label,
+  hint,
+  action,
+  children,
+  className,
+}: {
+  label: string;
+  hint?: ReactNode;
+  /** Optional control shown on the right of the label (e.g. "Write with AI") */
+  action?: ReactNode;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <div className={cn("block", className)}>
-      <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted">{label}</span>
+      <span className="mb-1.5 flex min-h-6 items-center justify-between gap-2">
+        <span className="text-xs font-semibold uppercase tracking-wider text-muted">{label}</span>
+        {action}
+      </span>
       {children}
       {hint && <span className="mt-1 block text-xs text-muted">{hint}</span>}
     </div>
@@ -39,14 +55,15 @@ export function TextInput({
 export function TextArea({
   label,
   hint,
+  action,
   value,
   onChange,
   rows = 4,
   className,
   ...props
-}: { label: string; hint?: ReactNode; value: string; onChange: (v: string) => void } & Omit<ComponentProps<"textarea">, "value" | "onChange">) {
+}: { label: string; hint?: ReactNode; action?: ReactNode; value: string; onChange: (v: string) => void } & Omit<ComponentProps<"textarea">, "value" | "onChange">) {
   return (
-    <Field label={label} hint={hint} className={className}>
+    <Field label={label} hint={hint} action={action} className={className}>
       <textarea aria-label={label} value={value} onChange={(e) => onChange(e.target.value)} rows={rows} className={cn(inputClass, "resize-y")} {...props} />
     </Field>
   );
