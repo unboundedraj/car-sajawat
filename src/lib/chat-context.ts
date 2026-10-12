@@ -3,6 +3,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import { TAGS, getActiveOffers, getCatalog, getCategories, getSiteContent } from "./data";
 import { BRAND_TAGLINE } from "./brand";
 import { formatPrice } from "./price";
+import { formatPhone } from "./utils";
 import type { CatalogItem, CatalogKind, Category } from "./types";
 
 const price = (i: CatalogItem) => {
@@ -84,7 +85,7 @@ Brand line: ${BRAND_TAGLINE}
 Tagline: ${contact.tagline}
 Address: ${contact.address}
 Phone: ${[contact.phone, contact.altPhone].filter(Boolean).join(" / ") || "not listed"}
-WhatsApp: ${contact.whatsapp ? `+${contact.whatsapp}` : "n/a"}
+WhatsApp: ${contact.whatsapp ? formatPhone(contact.whatsapp) : "n/a"}
 Email: ${contact.email || "n/a"}
 Opening hours: ${contact.hours.map((h) => `${h.days}: ${h.time}`).join("; ") || "not listed (ask the team)"}
 Instagram: ${contact.instagram || "n/a"}
