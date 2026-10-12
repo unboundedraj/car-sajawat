@@ -3,6 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
+  // Hide the dev-only "N" badge (it sat on the bottom-left scroll-to-top button).
+  // Errors still show in the dev overlay.
+  devIndicators: false,
   images: {
     // Keep in sync with OPTIMIZED_IMAGE_HOSTS in src/lib/media.ts
     remotePatterns: [

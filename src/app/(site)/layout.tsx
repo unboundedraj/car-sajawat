@@ -1,6 +1,7 @@
 import { ChatWidget } from "@/components/chat/chat-widget";
 import { Footer } from "@/components/site/footer";
 import { Navbar } from "@/components/site/navbar";
+import { ScrollToTop } from "@/components/site/scroll-to-top";
 import { InstagramFab, WhatsAppFab } from "@/components/site/whatsapp-fab";
 import { getCatalog, getCurrentYear, getSiteContent } from "@/lib/data";
 
@@ -30,6 +31,7 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
         {children}
       </main>
       <Footer contact={contact} year={year} services={footerServices} />
+      <ScrollToTop />
       {/* Floating stack, bottom → top: Instagram, WhatsApp, chat */}
       <InstagramFab url={contact.instagram} slot={0} />
       <WhatsAppFab number={contact.whatsapp} message={contact.whatsappMessage} slot={contact.instagram ? 1 : 0} />
