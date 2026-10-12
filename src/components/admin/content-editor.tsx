@@ -14,6 +14,7 @@ const TABS: { key: SiteContentKey; label: string }[] = [
   { key: "about", label: "About" },
   { key: "contact", label: "Contact & map" },
   { key: "chatbot", label: "AI chatbot" },
+  { key: "payment", label: "Payments" },
   { key: "testimonials", label: "Testimonials" },
 ];
 
@@ -38,7 +39,7 @@ export function ContentEditor({ initial }: { initial: SiteContent }) {
     });
   }
 
-  const { hero, about, contact, chatbot, testimonials } = content;
+  const { hero, about, contact, chatbot, testimonials, payment } = content;
 
   return (
     <div>
@@ -224,6 +225,28 @@ export function ContentEditor({ initial }: { initial: SiteContent }) {
               onChange={(v) => update("chatbot", { knowledge: v })}
               placeholder={"Q: How long does full-body PPF take?\nA: Usually 3–4 days depending on the car.\n\nWe use XYZ brand films with a 5-year warranty…"}
             />
+          </AdminCard>
+        )}
+
+        {tab === "payment" && (
+          <AdminCard
+            title="Advance payments (UPI)"
+            description="Shown on the Contact page under the contact cards, so customers can pay the advance for a booking once you've confirmed it with them."
+          >
+            <Toggle label="Show on the Contact page" checked={payment.enabled} onChange={(v) => update("payment", { enabled: v })} />
+            <TextInput label="Heading" value={payment.title} onChange={(v) => update("payment", { title: v })} />
+            <TextArea label="Short note" rows={3} value={payment.note} onChange={(v) => update("payment", { note: v })} />
+            <MediaField
+              label="UPI QR code"
+              folder="payment"
+              value={payment.qrImage}
+              onChange={(v) => update("payment", { qrImage: v })}
+              hint="Square image of the QR on a white background (crop out the app's screenshot frame). Test it by scanning before you save."
+            />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <TextInput label="Payee name" hint="Name on the UPI account. Only used when the 'Open UPI app' button opens a phone's UPI app; the page itself shows your business name under 'Pay to'." value={payment.payeeName} onChange={(v) => update("payment", { payeeName: v })} />
+              <TextInput label="UPI ID" hint="Lets phone users tap to open their UPI app, and copy the ID" value={payment.upiId} onChange={(v) => update("payment", { upiId: v })} placeholder="name@bank" />
+            </div>
           </AdminCard>
         )}
 
