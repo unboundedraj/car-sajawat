@@ -158,7 +158,13 @@ export function ContentEditor({ initial }: { initial: SiteContent }) {
                 />
                 <TextInput label="Email" type="email" value={contact.email} onChange={(v) => update("contact", { email: v })} />
               </div>
-              <TextArea label="WhatsApp pre-filled message" rows={2} value={contact.whatsappMessage} onChange={(v) => update("contact", { whatsappMessage: v })} />
+              <TextArea
+                label="WhatsApp pre-filled message"
+                rows={7}
+                hint="What visitors see when they tap a WhatsApp button, ready to fill in and send. New lines are kept; *text* is bold in WhatsApp."
+                value={contact.whatsappMessage}
+                onChange={(v) => update("contact", { whatsappMessage: v })}
+              />
             </AdminCard>
             <AdminCard title="Location & map">
               <TextArea label="Address" rows={2} value={contact.address} onChange={(v) => update("contact", { address: v })} />
