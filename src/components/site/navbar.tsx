@@ -48,139 +48,142 @@ export function Navbar({
   }, [open]);
 
   return (
-    <header
-      className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-500",
-        overHero ? "border-b border-transparent bg-transparent" : "glass border-b shadow-[0_8px_30px_-20px_rgb(0_0_0/0.5)]",
-      )}
-    >
-      <nav className="container-x flex h-16 items-center justify-between gap-4 lg:h-20" aria-label="Primary">
-        <Link href="/" className="shrink-0" aria-label={`${businessName} home`} onClick={() => setOpen(false)}>
-          <Logo name={businessName} preload taglineClassName="lg:hidden xl:block" nameClassName="lg:[--brand-name:17px] xl:[--brand-name:26px]" />
-        </Link>
+    <>
+      <header
+        className={cn(
+          "fixed inset-x-0 top-0 z-50 transition-all duration-500",
+          overHero ? "border-b border-transparent bg-transparent" : "glass border-b shadow-[0_8px_30px_-20px_rgb(0_0_0/0.5)]",
+        )}
+      >
+        <nav className="container-x flex h-16 items-center justify-between gap-4 lg:h-20" aria-label="Primary">
+          <Link href="/" className="shrink-0" aria-label={`${businessName} home`} onClick={() => setOpen(false)}>
+            <Logo name={businessName} preload taglineClassName="lg:hidden xl:block" nameClassName="lg:[--brand-name:17px] xl:[--brand-name:26px]" />
+          </Link>
 
-        <ul className="hidden items-center gap-1 lg:flex">
-          {NAV_LINKS.map((link) => {
-            const active = isActive(pathname, link.href);
-            return (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className={cn(
-                    "relative px-1.5 py-2 text-[13px] font-medium whitespace-nowrap uppercase tracking-wide transition-colors xl:px-2.5 xl:text-sm xl:tracking-wide",
-                    active ? "text-fg" : "text-muted hover:text-fg",
-                  )}
-                >
-                  {link.label}
-                  <span
+          <ul className="hidden items-center gap-1 lg:flex">
+            {NAV_LINKS.map((link) => {
+              const active = isActive(pathname, link.href);
+              return (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
                     className={cn(
-                      "absolute inset-x-1.5 -bottom-0.5 h-0.5 origin-left bg-accent transition-transform duration-300 xl:inset-x-2.5",
-                      active ? "scale-x-100" : "scale-x-0",
+                      "relative px-1.5 py-2 text-[13px] font-medium whitespace-nowrap uppercase tracking-wide transition-colors xl:px-2.5 xl:text-sm xl:tracking-wide",
+                      active ? "text-fg" : "text-muted hover:text-fg",
                     )}
-                  />
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+                  >
+                    {link.label}
+                    <span
+                      className={cn(
+                        "absolute inset-x-1.5 -bottom-0.5 h-0.5 origin-left bg-accent transition-transform duration-300 xl:inset-x-2.5",
+                        active ? "scale-x-100" : "scale-x-0",
+                      )}
+                    />
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
 
-        <div className="flex items-center gap-2">
-          <ThemeToggle className="hidden sm:inline-flex" />
-          <a
-            href="/catalog.pdf"
-            download
-            title="Download catalogue (PDF)"
-            aria-label="Download catalogue (PDF)"
-            className={buttonClasses({ variant: "outline", size: "sm", className: "hidden size-10 px-0 sm:inline-flex 2xl:w-auto 2xl:px-4" })}
-          >
-            <FileDown className="size-4" />
-            <span className="hidden 2xl:inline">Catalogue</span>
-          </a>
-          {whatsapp ? (
+          <div className="flex items-center gap-2">
+            <ThemeToggle className="hidden sm:inline-flex" />
             <a
-              href={whatsappLink(whatsapp, whatsappMessage)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={buttonClasses({ size: "sm", className: "hidden md:inline-flex" })}
+              href="/catalog.pdf"
+              download
+              title="Download catalogue (PDF)"
+              aria-label="Download catalogue (PDF)"
+              className={buttonClasses({ variant: "outline", size: "sm", className: "hidden size-10 px-0 sm:inline-flex 2xl:w-auto 2xl:px-4" })}
             >
-              Get a quote <ArrowUpRight className="hidden size-4 xl:block" />
+              <FileDown className="size-4" />
+              <span className="hidden 2xl:inline">Catalogue</span>
             </a>
-          ) : (
-            <Link href="/contact" className={buttonClasses({ size: "sm", className: "hidden md:inline-flex" })}>
-              Contact us <ArrowUpRight className="hidden size-4 xl:block" />
-            </Link>
-          )}
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            className="grid size-10 place-items-center rounded-full border border-line text-fg lg:hidden"
-            aria-label={open ? "Close menu" : "Open menu"}
-            aria-expanded={open}
-            aria-controls="mobile-menu"
-          >
-            {open ? <X className="size-5" /> : <Menu className="size-5" />}
-          </button>
-        </div>
-      </nav>
+            {whatsapp ? (
+              <a
+                href={whatsappLink(whatsapp, whatsappMessage)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={buttonClasses({ size: "sm", className: "hidden md:inline-flex" })}
+              >
+                Get a quote <ArrowUpRight className="hidden size-4 xl:block" />
+              </a>
+            ) : (
+              <Link href="/contact" className={buttonClasses({ size: "sm", className: "hidden md:inline-flex" })}>
+                Contact us <ArrowUpRight className="hidden size-4 xl:block" />
+              </Link>
+            )}
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              className="grid size-10 place-items-center rounded-full border border-line text-fg lg:hidden"
+              aria-label={open ? "Close menu" : "Open menu"}
+              aria-expanded={open}
+              aria-controls="mobile-menu"
+            >
+              {open ? <X className="size-5" /> : <Menu className="size-5" />}
+            </button>
+          </div>
+        </nav>
+      </header>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            id="mobile-menu"
-            initial={{ opacity: 0, y: -12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.25 }}
-            className="fixed inset-x-0 top-16 bottom-0 overflow-y-auto border-t border-line bg-bg lg:hidden"
-          >
-            <div className="container-x flex min-h-full flex-col py-8">
-              <ul className="flex flex-col">
-                {NAV_LINKS.map((link, i) => (
-                  <motion.li
-                    key={link.href}
-                    initial={{ opacity: 0, x: -16 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.04 * i }}
-                  >
-                    <Link
-                      href={link.href}
-                      onClick={() => setOpen(false)}
-                      className="flex items-center justify-between border-b border-line py-4"
+      {/* Rendered beside the header, not inside it: the header's backdrop blur would otherwise become the containing block of this fixed menu and collapse it to ~1px. */}
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              id="mobile-menu"
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+              className="fixed inset-x-0 top-16 bottom-0 z-45 overflow-y-auto border-t border-line bg-bg lg:hidden"
+            >
+              <div className="container-x flex min-h-full flex-col py-8">
+                <ul className="flex flex-col">
+                  {NAV_LINKS.map((link, i) => (
+                    <motion.li
+                      key={link.href}
+                      initial={{ opacity: 0, x: -16 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.04 * i }}
                     >
-                      <span className="display text-3xl font-semibold sm:text-4xl">{link.label}</span>
-                      <ArrowUpRight className="size-5 text-accent" />
-                    </Link>
-                  </motion.li>
-                ))}
-              </ul>
-              <div className="mt-auto flex flex-col gap-3 pt-10">
-                {whatsapp && (
-                  <a
-                    href={whatsappLink(whatsapp, whatsappMessage)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={buttonClasses({ variant: "whatsapp", size: "lg" })}
-                  >
-                    <WhatsAppIcon className="size-5" /> Chat on WhatsApp
+                      <Link
+                        href={link.href}
+                        onClick={() => setOpen(false)}
+                        className="flex items-center justify-between border-b border-line py-4"
+                      >
+                        <span className="display text-3xl font-semibold sm:text-4xl">{link.label}</span>
+                        <ArrowUpRight className="size-5 text-accent" />
+                      </Link>
+                    </motion.li>
+                  ))}
+                </ul>
+                <div className="mt-auto flex flex-col gap-3 pt-10">
+                  {whatsapp && (
+                    <a
+                      href={whatsappLink(whatsapp, whatsappMessage)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={buttonClasses({ variant: "whatsapp", size: "lg" })}
+                    >
+                      <WhatsAppIcon className="size-5" /> Chat on WhatsApp
+                    </a>
+                  )}
+                  <a href="/catalog.pdf" download className={buttonClasses({ variant: "outline", size: "lg" })}>
+                    <FileDown className="size-4" /> Download catalogue (PDF)
                   </a>
-                )}
-                <a href="/catalog.pdf" download className={buttonClasses({ variant: "outline", size: "lg" })}>
-                  <FileDown className="size-4" /> Download catalogue (PDF)
-                </a>
-                {phone && (
-                  <a href={telLink(phone)} className={buttonClasses({ variant: "outline", size: "lg" })}>
-                    <Phone className="size-4" /> {phone}
-                  </a>
-                )}
-                <div className="flex items-center justify-between pt-4">
-                  <span className="text-sm text-muted">Theme</span>
-                  <ThemeToggle />
+                  {phone && (
+                    <a href={telLink(phone)} className={buttonClasses({ variant: "outline", size: "lg" })}>
+                      <Phone className="size-4" /> {phone}
+                    </a>
+                  )}
+                  <div className="flex items-center justify-between pt-4">
+                    <span className="text-sm text-muted">Theme</span>
+                    <ThemeToggle />
+                  </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </header>
+            </motion.div>
+          )}
+        </AnimatePresence>
+    </>
   );
 }
