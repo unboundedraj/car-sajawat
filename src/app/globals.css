@@ -1,0 +1,207 @@
+@import "tailwindcss";
+
+/* Class-based dark mode; the inline theme script toggles .dark on <html> */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Palette: racing red = primary actions & headline highlights,
+ * navy = depth (tinted backgrounds, solid feature bands),
+ * gold = premium highlights (eyebrows, stats, prices, badges, dividers).
+ */
+:root {
+  --bg: #f6f7f9;
+  --bg-elevated: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #eef1f6;
+  --fg: #0a1022;
+  --muted: #556070;
+  --line: rgb(13 27 62 / 0.1);
+  --line-strong: rgb(13 27 62 / 0.18);
+  --accent: #d6152a;
+  --accent-hot: #ff2d3f;
+  --accent-fg: #ffffff;
+  --amber: #e38b00;
+  --glow: rgb(214 21 42 / 0.18);
+  --grid: rgb(13 27 62 / 0.05);
+
+  /* Navy bands look the same in both themes */
+  --navy: #0d1b3e;
+  --navy-2: #1a3270;
+  --navy-fg: #f4f6fb;
+  /* Gold: deeper in light mode so it stays readable on white */
+  --gold: #9c7412;
+  --gold-bright: #e2bd55;
+  --gold-fg: #1c1503;
+  --gold-glow: rgb(212 175 55 / 0.25);
+}
+
+.dark {
+  --bg: #05080f;
+  --bg-elevated: #0a1020;
+  --surface: #0d1426;
+  --surface-2: #141d33;
+  --fg: #f3f5fa;
+  --muted: #98a2b8;
+  --line: rgb(180 200 255 / 0.09);
+  --line-strong: rgb(180 200 255 / 0.18);
+  --accent: #e3192f;
+  --accent-hot: #ff3b4d;
+  --accent-fg: #ffffff;
+  --amber: #f5a524;
+  --glow: rgb(227 25 47 / 0.35);
+  --grid: rgb(180 200 255 / 0.045);
+
+  --gold: #d9b443;
+  --gold-glow: rgb(217 180 67 / 0.3);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-hot: var(--accent-hot);
+  --color-accent-fg: var(--accent-fg);
+  --color-amber: var(--amber);
+  --color-navy: var(--navy);
+  --color-navy-2: var(--navy-2);
+  --color-navy-fg: var(--navy-fg);
+  --color-gold: var(--gold);
+  --color-gold-bright: var(--gold-bright);
+  --color-gold-fg: var(--gold-fg);
+
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display-face), "Arial Narrow", ui-sans-serif, sans-serif;
+
+  --animate-marquee: marquee var(--marquee-duration, 40s) linear infinite;
+  --animate-sweep: sweep 6s ease-in-out infinite;
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-pulse-ring: pulse-ring 2.2s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes sweep {
+    0% { transform: translateX(-120%) skewX(-20deg); opacity: 0; }
+    20% { opacity: 1; }
+    60%, 100% { transform: translateX(220%) skewX(-20deg); opacity: 0; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-14px); }
+  }
+  @keyframes pulse-ring {
+    0% { transform: scale(0.9); opacity: 0.7; }
+    100% { transform: scale(1.7); opacity: 0; }
+  }
+}
+
+/* Speed streaks behind the page-transition wheel */
+@keyframes wheel-streak {
+  0% { transform: translateX(40%); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateX(-60%); opacity: 0; }
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+@layer components {
+  .container-x {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .display {
+    @apply font-display uppercase leading-[0.92] tracking-tight;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-gold;
+  }
+  .eyebrow::before {
+    content: "";
+    @apply h-px w-8 bg-linear-to-r from-gold to-accent;
+  }
+
+  /* Thin gold divider that fades out at both ends */
+  .gold-rule {
+    @apply h-px w-full bg-linear-to-r from-transparent via-gold to-transparent;
+  }
+
+  /* Metallic gold text for numbers and badges */
+  .text-gold-gradient {
+    background-image: linear-gradient(180deg, var(--gold-bright), var(--gold) 70%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Solid navy feature band (same in light and dark themes) */
+  .navy-band {
+    background-color: var(--navy);
+    background-image:
+      radial-gradient(60rem 30rem at 85% -10%, color-mix(in oklab, var(--navy-2) 90%, transparent), transparent 60%),
+      radial-gradient(40rem 20rem at 0% 110%, color-mix(in oklab, var(--accent) 18%, transparent), transparent 60%);
+    color: var(--navy-fg);
+  }
+
+  .card {
+    @apply rounded-2xl border border-line bg-surface;
+  }
+
+  /* Diagonal racing-stripe accent used on cards and buttons */
+  .stripe-bg {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent 0 10px,
+      color-mix(in oklab, var(--accent) 12%, transparent) 10px 12px
+    );
+  }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+
+  .text-outline {
+    -webkit-text-stroke: 1px var(--line-strong);
+    color: transparent;
+  }
+
+  .glass {
+    @apply border-line bg-bg/70 backdrop-blur-xl backdrop-saturate-150;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
