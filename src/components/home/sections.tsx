@@ -9,6 +9,7 @@ import { SmartImage } from "@/components/ui/smart-image";
 import { youtubeThumb } from "@/lib/media";
 import type { AboutContent, CatalogItem, ContactContent, MediaAsset, TeamMember, Testimonial } from "@/lib/types";
 import { telLink, whatsappLink } from "@/lib/utils";
+import { TeamCard } from "./team-card";
 
 // ── Services: bento grid ────────────────────────────────────
 
@@ -29,7 +30,7 @@ export function ServicesShowcase({ services }: { services: CatalogItem[] }) {
           }
           description="From invisible protection to complete makeovers, every service is done in-house by trained specialists."
           action={
-            <ButtonLink href="/services" variant="outline">
+            <ButtonLink href="/services?tab=service" variant="outline">
               All services <ArrowRight className="size-4" />
             </ButtonLink>
           }
@@ -97,7 +98,7 @@ export function FeaturedProducts({ products }: { products: CatalogItem[] }) {
           title="Upgrades in stock"
           description="Hand-picked accessories with professional fitting, matched to your car's make and model."
           action={
-            <ButtonLink href="/services?tab=product" variant="outline">
+            <ButtonLink href="/services" variant="outline">
               Shop accessories <ArrowRight className="size-4" />
             </ButtonLink>
           }
@@ -309,35 +310,7 @@ export function TeamSection({ team }: { team: TeamMember[] }) {
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
             {team.map((m, i) => (
               <Reveal key={m.id} delay={(i % 4) * 0.08}>
-                <article className="group card overflow-hidden">
-                  <div className="relative aspect-[4/5] overflow-hidden bg-surface-2">
-                    {m.photo_url ? (
-                      <SmartImage
-                        src={m.photo_url}
-                        alt={m.name}
-                        fill
-                        sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
-                        className="object-cover grayscale transition-all duration-700 group-hover:scale-105 group-hover:grayscale-0"
-                      />
-                    ) : (
-                      <div className="grid-bg absolute inset-0 grid place-items-center">
-                        <span className="display text-gold-gradient text-6xl font-bold">
-                          {m.name
-                            .split(" ")
-                            .map((p) => p[0])
-                            .join("")
-                            .slice(0, 2)}
-                        </span>
-                      </div>
-                    )}
-                    <div className="absolute inset-x-0 bottom-0 h-1 origin-left scale-x-0 bg-accent transition-transform duration-500 group-hover:scale-x-100" />
-                  </div>
-                  <div className="p-4 sm:p-5">
-                    <h3 className="display text-xl font-semibold sm:text-2xl">{m.name}</h3>
-                    <p className="text-xs font-semibold uppercase tracking-widest text-gold">{m.role}</p>
-                    {m.bio && <p className="mt-2 line-clamp-3 text-sm text-muted">{m.bio}</p>}
-                  </div>
-                </article>
+                <TeamCard member={m} />
               </Reveal>
             ))}
           </div>
