@@ -9,25 +9,25 @@ import { buttonClasses } from "@/components/ui/button";
 import { getCatalog, getCategories, getSiteContent } from "@/lib/data";
 
 export const metadata: Metadata = {
-  title: "Services & Products",
+  title: "Products & Services",
   description:
-    "PPF, ceramic coating, wraps, interiors, lighting, audio and premium car accessories, fitted by specialists at Car Sajawat, Mumbai.",
+    "PPF, ceramic coating, wraps, interiors, lighting, audio and premium car accessories, from Car Sajawat, the House of Exclusive Car Accessories in Ulhasnagar.",
 };
 
 export default async function ServicesPage() {
   const [catalog, categories, { contact }] = await Promise.all([getCatalog(), getCategories(), getSiteContent()]);
-  const services = catalog.filter((c) => c.kind === "service");
+  const products = catalog.filter((c) => c.kind === "product");
 
   return (
     <>
       <PageHeader
-        eyebrow="Services & products"
+        eyebrow="Products & services"
         title={
           <>
             Everything your car <span className="text-accent">deserves</span>
           </>
         }
-        description="Browse our protection, styling and upgrade services, plus the accessories we stock and fit, with estimated costs. Want it all in one place? Download the PDF catalogue."
+        description="Browse the accessories we stock and fit, then switch to our protection, styling and upgrade services, all with estimated costs. Want it all in one place? Download the PDF catalogue."
         watermark="Garage"
       >
         <a href="/catalog.pdf" download className={buttonClasses({ variant: "outline", className: "mt-8" })}>
@@ -36,11 +36,11 @@ export default async function ServicesPage() {
       </PageHeader>
       <section className="py-16 sm:py-20">
         <div className="container-x">
-          {/* useSearchParams (tab) needs a boundary; the fallback is the static services grid */}
+          {/* useSearchParams (tab) needs a boundary; the fallback is the static products grid */}
           <Suspense
             fallback={
               <div className="mt-[4.5rem] grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {services.map((item, i) => (
+                {products.map((item, i) => (
                   <CatalogCard key={item.id} item={item} index={i} />
                 ))}
               </div>

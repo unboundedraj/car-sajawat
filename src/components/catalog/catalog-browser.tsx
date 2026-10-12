@@ -8,14 +8,14 @@ import { cn } from "@/lib/utils";
 import { CatalogCard } from "./catalog-card";
 
 const TABS: { value: CatalogKind; label: string }[] = [
-  { value: "service", label: "Services" },
   { value: "product", label: "Products" },
+  { value: "service", label: "Services" },
 ];
 
 export function CatalogBrowser({ items, categories: allCategories }: { items: CatalogItem[]; categories: Category[] }) {
   const params = useSearchParams();
   const router = useRouter();
-  const tab: CatalogKind = params.get("tab") === "product" ? "product" : "service";
+  const tab: CatalogKind = params.get("tab") === "service" ? "service" : "product";
   const [category, setCategory] = useState("All");
 
   const ofKind = useMemo(() => items.filter((i) => i.kind === tab), [items, tab]);
@@ -30,7 +30,7 @@ export function CatalogBrowser({ items, categories: allCategories }: { items: Ca
 
   function selectTab(value: CatalogKind) {
     setCategory("All");
-    router.replace(value === "service" ? "/services" : "/services?tab=product", { scroll: false });
+    router.replace(value === "product" ? "/services" : "/services?tab=service", { scroll: false });
   }
 
   return (

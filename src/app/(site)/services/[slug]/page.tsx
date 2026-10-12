@@ -53,7 +53,7 @@ async function ItemDetails({ params }: Pick<PageProps<"/services/[slug]">, "para
       <section className="relative overflow-hidden pt-28 pb-16 sm:pt-36 sm:pb-24">
         <div aria-hidden className="absolute -top-40 right-0 h-[30rem] w-[30rem] rounded-full bg-accent/15 blur-[120px]" />
         <div className="container-x relative">
-          <Link href={item.kind === "product" ? "/services?tab=product" : "/services"} className="inline-flex items-center gap-2 text-sm text-muted hover:text-accent">
+          <Link href={item.kind === "service" ? "/services?tab=service" : "/services"} className="inline-flex items-center gap-2 text-sm text-muted hover:text-accent">
             <ArrowLeft className="size-4" /> Back to {item.kind === "product" ? "products" : "services"}
           </Link>
 
