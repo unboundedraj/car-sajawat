@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { BRAND_TAGLINE } from "./brand";
 import { formatPrice } from "./price";
 import type { CatalogItem, CatalogKind, Category, ContactContent } from "./types";
-import { mapDirectionsUrl, whatsappLink } from "./utils";
+import { formatPhone, mapDirectionsUrl, whatsappLink } from "./utils";
 
 // Fonts are vendored in /assets/fonts (see outputFileTracingIncludes in next.config.ts).
 // Manrope's latin subset has no ₹ glyph, so the rupee sign uses the latin-ext file.
@@ -361,11 +361,14 @@ export function renderCatalogPdf({
   const quick = [
     contact.address && { label: "Visit", icon: "pin", value: contact.address, href: directions },
     phones[0] && { label: "Call", icon: "phone", value: phones[0], href: `tel:${phones[0].replace(/[^\d+]/g, "")}` },
+    contact.whatsapp && { label: "WhatsApp", icon: "whatsapp", value: formatPhone(contact.whatsapp), href: whatsappLink(contact.whatsapp, contact.whatsappMessage) },
     contact.email && { label: "Email", icon: "mail", value: contact.email, href: `mailto:${contact.email}` },
     igHandle && { label: "Instagram", icon: "instagram", value: igHandle, href: contact.instagram },
   ].filter(Boolean) as { label: string; icon: IconName; value: string; href: string }[];
 
-  const footerLine = [contact.businessName, phones[0], contact.email, igHandle].filter(Boolean).join("   ·   ");
+  const footerLine = [contact.businessName, phones[0], contact.whatsapp ? `WhatsApp ${formatPhone(contact.whatsapp)}` : "", contact.email, igHandle]
+    .filter(Boolean)
+    .join("   ·   ");
   const title = `${contact.businessName} – Products & Services Catalogue`;
 
   const doc = (
@@ -463,7 +466,7 @@ export function renderCatalogPdf({
               <View style={s.contactCell}>
                 <Text style={s.contactLabel}>WhatsApp</Text>
                 <ContactRow icon="whatsapp" href={whatsappLink(contact.whatsapp, contact.whatsappMessage)}>
-                  +{contact.whatsapp}
+                  {formatPhone(contact.whatsapp)}
                 </ContactRow>
               </View>
             ) : null}
