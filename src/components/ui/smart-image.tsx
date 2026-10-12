@@ -7,7 +7,7 @@ import { canOptimizeImage } from "@/lib/media";
  */
 export function SmartImage({ src, alt, ...props }: Omit<ImageProps, "src"> & { src: string }) {
   if (canOptimizeImage(src)) return <Image src={src} alt={alt} {...props} />;
-  const { fill, className, sizes: _sizes, preload, ...rest } = props;
+  const { fill, className, sizes: _sizes, preload, style, ...rest } = props;
   void _sizes;
   return (
     // eslint-disable-next-line @next/next/no-img-element
@@ -17,8 +17,9 @@ export function SmartImage({ src, alt, ...props }: Omit<ImageProps, "src"> & { s
       loading={preload ? "eager" : "lazy"}
       decoding="async"
       className={fill ? `absolute inset-0 size-full ${className ?? ""}` : className}
-      width={typeof rest.width === "number" ? rest.width : undefined}
-      height={typeof rest.height === "number" ? rest.height : undefined}
+      style={style}
+      width={typeof rest.width === "number" && rest.width > 0 ? rest.width : undefined}
+      height={typeof rest.height === "number" && rest.height > 0 ? rest.height : undefined}
     />
   );
 }
