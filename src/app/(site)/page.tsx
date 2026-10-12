@@ -10,6 +10,7 @@ import {
   TestimonialsSection,
 } from "@/components/home/sections";
 import { OfferStrip } from "@/components/site/offer-strip";
+import { BRAND_TAGLINE } from "@/lib/brand";
 import { getActiveOffers, getCatalog, getMedia, getSiteContent, getTeam } from "@/lib/data";
 
 export default async function HomePage() {
@@ -28,6 +29,7 @@ export default async function HomePage() {
     "@context": "https://schema.org",
     "@type": "AutoPartsStore",
     name: contact.businessName,
+    slogan: BRAND_TAGLINE,
     description: content.hero.subtitle,
     telephone: contact.phone || undefined,
     email: contact.email || undefined,

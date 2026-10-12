@@ -5,7 +5,7 @@ import { getMedia } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Gallery",
-  description: "Photos and videos of PPF, ceramic coating, wraps and custom builds from the Car Sajawat studio in Mumbai.",
+  description: "Photos and videos of PPF, ceramic coating, wraps and custom builds from the Car Sajawat studio in Ulhasnagar.",
 };
 
 export default async function GalleryPage() {

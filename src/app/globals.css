@@ -77,6 +77,7 @@
 
   --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-display-face), "Arial Narrow", ui-sans-serif, sans-serif;
+  --font-brand: var(--font-brand-face), "Arial Black", ui-sans-serif, sans-serif;
 
   --animate-marquee: marquee var(--marquee-duration, 40s) linear infinite;
   --animate-sweep: sweep 6s ease-in-out infinite;

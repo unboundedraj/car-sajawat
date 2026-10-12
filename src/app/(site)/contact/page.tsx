@@ -10,7 +10,7 @@ import { mapDirectionsUrl, telLink, whatsappLink } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: "Visit, call or WhatsApp Car Sajawat in Mumbai for PPF, ceramic coating, accessories and modifications.",
+  description: "Visit, call or WhatsApp Car Sajawat in Ulhasnagar for PPF, ceramic coating, accessories and modifications.",
 };
 
 export default async function ContactPage() {

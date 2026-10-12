@@ -61,7 +61,7 @@ export function AdminSidebar() {
   return (
     <>
       <header className="glass sticky top-0 z-40 flex h-14 items-center justify-between border-b px-4 lg:hidden">
-        <Logo />
+        <Logo tagline={false} />
         <button type="button" onClick={() => setOpen(true)} aria-label="Open admin menu" className="grid size-10 place-items-center rounded-xl border border-line">
           <Menu className="size-5" />
         </button>
@@ -72,7 +72,7 @@ export function AdminSidebar() {
           <button type="button" aria-label="Close menu" className="absolute inset-0 bg-black/60" onClick={() => setOpen(false)} />
           <aside className="absolute inset-y-0 left-0 flex w-72 flex-col gap-6 border-r border-line bg-bg-elevated p-4">
             <div className="flex items-center justify-between">
-              <Logo />
+              <Logo tagline={false} />
               <button type="button" onClick={() => setOpen(false)} aria-label="Close menu" className="grid size-9 place-items-center rounded-lg border border-line">
                 <X className="size-4" />
               </button>
@@ -84,7 +84,7 @@ export function AdminSidebar() {
 
       <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col gap-8 border-r border-line bg-bg-elevated p-5 lg:flex">
         <Link href="/admin">
-          <Logo />
+          <Logo tagline={false} />
           <span className="mt-2 block text-[10px] font-bold uppercase tracking-[0.3em] text-muted">Admin panel</span>
         </Link>
         {nav}

@@ -84,8 +84,8 @@ export function Footer({
 
   const serviceLinks: FooterLink[] = [
     ...services.slice(0, 5).map((s) => ({ label: s.name, href: `/services/${s.slug}` })),
-    { label: services.length ? "All services" : "Services", href: "/services" },
-    { label: "Accessories & products", href: "/services?tab=product" },
+    { label: "Accessories & products", href: "/services" },
+    { label: services.length ? "All services" : "Services", href: "/services?tab=service" },
   ];
 
   const helpLinks: FooterLink[] = [
@@ -213,8 +213,8 @@ export function Footer({
           </Link>
         </div>
       </div>
-      <p aria-hidden className="display text-outline pointer-events-none relative mb-[-0.18em] text-center text-[18vw] font-bold leading-none select-none">
-        Sajawat
+      <p aria-hidden className="display text-outline pointer-events-none relative mb-[-0.18em] text-center text-[13vw] font-bold leading-none whitespace-nowrap select-none">
+        Car Sajawat
       </p>
     </footer>
   );

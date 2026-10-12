@@ -8,7 +8,7 @@ export const DEFAULT_MAP_EMBED =
 
 export const DEFAULT_CONTENT: SiteContent = {
   hero: {
-    eyebrow: "Car accessories & modifications",
+    eyebrow: "House of Exclusive Car Accessories",
     title: "Built to turn heads",
     highlight: "turn heads",
     subtitle: "Paint protection, coatings, premium accessories and custom builds for your car.",
@@ -29,12 +29,12 @@ export const DEFAULT_CONTENT: SiteContent = {
   },
   contact: {
     businessName: "Car Sajawat",
-    tagline: "Car accessories & modifications · Ulhasnagar",
+    tagline: "House of Exclusive Car Accessories · Ulhasnagar",
     phone: "",
     altPhone: "",
     whatsapp: "",
     whatsappMessage: "Hi Car Sajawat! I'd like to know more about ",
-    email: "",
+    email: "carsajawatulhasnagar@gmail.com",
     address: "Ulhasnagar, Maharashtra, India",
     mapEmbedUrl: DEFAULT_MAP_EMBED,
     mapQuery: "CAR SAJAWAT [The Original] Best Car Accessories Car Decor in Ulhasnagar",

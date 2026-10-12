@@ -56,7 +56,7 @@ export function Navbar({
     >
       <nav className="container-x flex h-16 items-center justify-between gap-4 lg:h-20" aria-label="Primary">
         <Link href="/" className="shrink-0" aria-label={`${businessName} home`} onClick={() => setOpen(false)}>
-          <Logo name={businessName} preload />
+          <Logo name={businessName} preload taglineClassName="lg:hidden xl:block" nameClassName="lg:[--brand-name:17px] xl:[--brand-name:26px]" />
         </Link>
 
         <ul className="hidden items-center gap-1 lg:flex">
@@ -67,14 +67,14 @@ export function Navbar({
                 <Link
                   href={link.href}
                   className={cn(
-                    "relative px-3.5 py-2 text-sm font-medium uppercase tracking-wider transition-colors",
+                    "relative px-1.5 py-2 text-[13px] font-medium whitespace-nowrap uppercase tracking-wide transition-colors xl:px-2.5 xl:text-sm xl:tracking-wide",
                     active ? "text-fg" : "text-muted hover:text-fg",
                   )}
                 >
                   {link.label}
                   <span
                     className={cn(
-                      "absolute inset-x-3.5 -bottom-0.5 h-0.5 origin-left bg-accent transition-transform duration-300",
+                      "absolute inset-x-1.5 -bottom-0.5 h-0.5 origin-left bg-accent transition-transform duration-300 xl:inset-x-2.5",
                       active ? "scale-x-100" : "scale-x-0",
                     )}
                   />
@@ -91,10 +91,10 @@ export function Navbar({
             download
             title="Download catalogue (PDF)"
             aria-label="Download catalogue (PDF)"
-            className={buttonClasses({ variant: "outline", size: "sm", className: "size-10 px-0 xl:w-auto xl:px-4" })}
+            className={buttonClasses({ variant: "outline", size: "sm", className: "hidden size-10 px-0 sm:inline-flex 2xl:w-auto 2xl:px-4" })}
           >
             <FileDown className="size-4" />
-            <span className="hidden xl:inline">Catalogue</span>
+            <span className="hidden 2xl:inline">Catalogue</span>
           </a>
           {whatsapp ? (
             <a
@@ -103,11 +103,11 @@ export function Navbar({
               rel="noopener noreferrer"
               className={buttonClasses({ size: "sm", className: "hidden md:inline-flex" })}
             >
-              Get a quote <ArrowUpRight className="size-4" />
+              Get a quote <ArrowUpRight className="hidden size-4 xl:block" />
             </a>
           ) : (
             <Link href="/contact" className={buttonClasses({ size: "sm", className: "hidden md:inline-flex" })}>
-              Contact us <ArrowUpRight className="size-4" />
+              Contact us <ArrowUpRight className="hidden size-4 xl:block" />
             </Link>
           )}
           <button

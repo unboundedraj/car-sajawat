@@ -1,6 +1,7 @@
 // Brand marks (lucide-react no longer ships brand icons)
 import Image from "next/image";
 import type { SVGProps } from "react";
+import { BRAND_TAGLINE } from "@/lib/brand";
 
 type IconProps = SVGProps<SVGSVGElement>;
 
@@ -44,12 +45,21 @@ export function Logo({
   name = "Car Sajawat",
   size = 44,
   preload,
+  tagline = true,
+  taglineClassName,
+  nameClassName,
 }: {
   className?: string;
   name?: string;
   /** Emblem size in px */
   size?: number;
   preload?: boolean;
+  /** Show "House of Exclusive Car Accessories" under the name */
+  tagline?: boolean;
+  /** e.g. to hide the tagline at a breakpoint where space is tight */
+  taglineClassName?: string;
+  /** Override --brand-name (the name's font size; the tagline scales with it) */
+  nameClassName?: string;
 }) {
   const [first, ...rest] = name.split(" ");
   return (
@@ -63,9 +73,19 @@ export function Logo({
         className="shrink-0 drop-shadow-[0_4px_14px_var(--gold-glow)]"
         style={{ width: size, height: size }}
       />
-      <span className="font-display text-xl font-bold uppercase leading-none tracking-wide">
-        {first}
-        {rest.length > 0 && <span className="text-accent"> {rest.join(" ")}</span>}
+      {/* Wide font so the name spans the same width as the tagline below it */}
+      <span className={`flex flex-col ${tagline ? "[--brand-name:clamp(20px,6.4vw,27px)]" : "[--brand-name:17px]"} ${nameClassName ?? ""}`}>
+        <span className="font-brand text-(length:--brand-name) font-bold uppercase leading-none whitespace-nowrap">
+          {first}
+          {rest.length > 0 && <span className="text-accent"> {rest.join(" ")}</span>}
+        </span>
+        {tagline && (
+          <span
+            className={`mt-[0.3em] block text-[length:calc(var(--brand-name)/2.565)] font-semibold uppercase leading-none tracking-[0.14em] whitespace-nowrap text-gold ${taglineClassName ?? ""}`}
+          >
+            {BRAND_TAGLINE}
+          </span>
+        )}
       </span>
     </span>
   );

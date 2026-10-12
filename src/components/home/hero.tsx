@@ -43,8 +43,8 @@ function HeroBackdrop({ hero }: { hero: HeroContent }) {
           style={{ top: `${top}%`, animationDelay: `${(i * 1.3).toFixed(1)}s`, animationDuration: `${5 + i}s` }}
         />
       ))}
-      <p className="display text-outline absolute inset-x-0 bottom-[8%] text-center text-[24vw] font-bold leading-none opacity-70 select-none lg:text-[20vw]">
-        Sajawat
+      <p className="display text-outline absolute inset-x-0 bottom-[8%] text-center text-[15vw] font-bold leading-none whitespace-nowrap opacity-70 select-none lg:text-[13vw]">
+        Car Sajawat
       </p>
     </div>
   );
