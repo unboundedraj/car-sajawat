@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/site/page-header";
 import { WhatsAppIcon } from "@/components/ui/brand-icons";
 import { Reveal } from "@/components/ui/reveal";
 import { getCatalog, getSiteContent } from "@/lib/data";
-import { mapDirectionsUrl, telLink, whatsappLink } from "@/lib/utils";
+import { formatPhone, mapDirectionsUrl, telLink, whatsappLink } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -21,7 +21,7 @@ export default async function ContactPage() {
     {
       Icon: WhatsAppIcon,
       label: "WhatsApp",
-      value: contact.whatsapp ? `+${contact.whatsapp}` : "",
+      value: formatPhone(contact.whatsapp),
       href: whatsappLink(contact.whatsapp, contact.whatsappMessage),
       hint: "Fastest way to get a quote",
     },

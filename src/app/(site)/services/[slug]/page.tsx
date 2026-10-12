@@ -10,7 +10,7 @@ import { buttonClasses } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
 import { getCatalog, getCatalogItem, getSiteContent } from "@/lib/data";
 import { PRICE_DISCLAIMER, formatPrice } from "@/lib/price";
-import { telLink, whatsappLink } from "@/lib/utils";
+import { enquiryMessage, telLink, whatsappLink } from "@/lib/utils";
 
 export async function generateStaticParams() {
   const items = await getCatalog();
@@ -44,7 +44,7 @@ async function ItemDetails({ params }: Pick<PageProps<"/services/[slug]">, "para
   if (!item) notFound();
 
   const related = catalog.filter((c) => c.kind === item.kind && c.id !== item.id).slice(0, 3);
-  const quoteMessage = `Hi ${contact.businessName}! I'm interested in ${item.name}. My car is: `;
+  const quoteMessage = enquiryMessage(contact.businessName, item.name);
   const hasMedia = item.images.length > 0 || item.videos.length > 0;
   const price = formatPrice(item);
 
