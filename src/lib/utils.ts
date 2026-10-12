@@ -5,6 +5,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/** CSS-columns masonry classes sized to the item count, centred when there are only a few. */
+export function masonryClass(count: number) {
+  if (count <= 1) return "mx-auto max-w-sm columns-1";
+  if (count === 2) return "mx-auto max-w-2xl columns-2 gap-3 sm:gap-4";
+  if (count === 3) return "mx-auto max-w-4xl columns-2 gap-3 sm:columns-3 sm:gap-4";
+  return "columns-2 gap-3 md:columns-3 lg:columns-4 sm:gap-4";
+}
+
 export function slugify(input: string) {
   return input
     .toLowerCase()
