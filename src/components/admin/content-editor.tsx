@@ -161,7 +161,7 @@ export function ContentEditor({ initial }: { initial: SiteContent }) {
               <TextArea
                 label="WhatsApp pre-filled message"
                 rows={7}
-                hint="What visitors see when they tap a WhatsApp button, ready to fill in and send. New lines are kept; *text* is bold in WhatsApp."
+                hint="Used for the WhatsApp links in the PDF catalogue and when JavaScript is off. On the website, visitors fill in a short popup (name, car, year, requirement) and their answers become the message. *text* is bold in WhatsApp."
                 value={contact.whatsappMessage}
                 onChange={(v) => update("contact", { whatsappMessage: v })}
               />
