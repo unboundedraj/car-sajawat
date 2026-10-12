@@ -2,10 +2,12 @@
 
 import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Bot, MessageCircle, RotateCcw, SendHorizontal, Sparkles, X } from "lucide-react";
+import { Bot, Globe, MessageCircle, RotateCcw, SendHorizontal, Sparkles, X } from "lucide-react";
 import { WhatsAppIcon } from "@/components/ui/brand-icons";
 import { CHAT_PANEL_SLOT, FAB_SLOT } from "@/components/site/fab-slots";
-import { cn, whatsappLink } from "@/lib/utils";
+import { EnquiryLink } from "@/components/site/enquiry-dialog";
+import { splitSources, type ChatSources } from "@/lib/chat-sources";
+import { cn } from "@/lib/utils";
 
 type Message = { role: "user" | "model"; text: string };
 
@@ -36,6 +38,56 @@ function renderInline(text: string): ReactNode[] {
       );
     return <Fragment key={i}>{part}</Fragment>;
   });
+}
+
+/** Web sources behind a researched answer (Google Search grounding) */
+function Sources({ sources }: { sources: ChatSources }) {
+  if (!sources.links.length && !sources.searchSuggestionsHtml) return null;
+  return (
+    <div className="mt-3 border-t border-line pt-2.5">
+      {sources.links.length > 0 && (
+        <>
+          <p className="flex items-center gap-1.5 text-[10px] font-semibold tracking-widest text-muted uppercase">
+            <Globe className="size-3" /> From the web
+          </p>
+          <ul className="mt-1.5 flex flex-wrap gap-1.5">
+            {sources.links.map((l) => (
+              <li key={l.url}>
+                <a
+                  href={l.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block max-w-[11rem] truncate rounded-full border border-line bg-bg px-2.5 py-1 text-[11px] text-muted transition-colors hover:border-accent hover:text-accent"
+                  title={l.title}
+                >
+                  {l.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      {sources.searchSuggestionsHtml && (
+        // Google's required "Search Suggestions" bar, isolated in a script-free sandboxed frame
+        <iframe
+          title="Google Search suggestions"
+          sandbox="allow-popups allow-popups-to-escape-sandbox"
+          srcDoc={sources.searchSuggestionsHtml}
+          className="mt-2 h-14 w-full rounded-lg border-0"
+        />
+      )}
+    </div>
+  );
+}
+
+function ModelMessage({ text }: { text: string }) {
+  const { answer, sources } = splitSources(text);
+  return (
+    <>
+      <FormattedText text={answer} />
+      {sources && <Sources sources={sources} />}
+    </>
+  );
 }
 
 function FormattedText({ text }: { text: string }) {
@@ -74,7 +126,6 @@ export function ChatWidget({
   greeting,
   suggestions,
   whatsapp,
-  whatsappMessage,
 }: {
   /** Position in the floating-button stack (0 = bottom) */
   slot: number;
@@ -82,7 +133,6 @@ export function ChatWidget({
   greeting: string;
   suggestions: string[];
   whatsapp: string;
-  whatsappMessage: string;
 }) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -240,7 +290,7 @@ export function ChatWidget({
                 ) : (
                   <div key={i} className="max-w-[90%] rounded-2xl rounded-tl-sm bg-surface-2 px-4 py-3">
                     {m.text ? (
-                      <FormattedText text={m.text} />
+                      <ModelMessage text={m.text} />
                     ) : (
                       <span className="flex gap-1 py-1" aria-label="Typing">
                         {[0, 1, 2].map((d) => (
@@ -287,14 +337,9 @@ export function ChatWidget({
                 </button>
               </form>
               {whatsapp && (
-                <a
-                  href={whatsappLink(whatsapp, whatsappMessage)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-2 flex items-center justify-center gap-1.5 text-xs text-muted hover:text-[#25D366]"
-                >
+                <EnquiryLink className="mt-2 flex items-center justify-center gap-1.5 text-xs text-muted hover:text-[#25D366]">
                   <WhatsAppIcon className="size-3.5" /> Prefer a human? Chat with us on WhatsApp
-                </a>
+                </EnquiryLink>
               )}
             </div>
           </motion.div>

@@ -1,4 +1,5 @@
 import { ChatWidget } from "@/components/chat/chat-widget";
+import { EnquiryProvider } from "@/components/site/enquiry-dialog";
 import { Footer } from "@/components/site/footer";
 import { Navbar } from "@/components/site/navbar";
 import { ScrollToTop } from "@/components/site/scroll-to-top";
@@ -14,6 +15,7 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
     .map(({ name, slug }) => ({ name, slug }));
 
   return (
+    <EnquiryProvider number={contact.whatsapp} businessName={contact.businessName}>
     <div className="flex min-h-dvh flex-col overflow-x-clip">
       <a
         href="#main"
@@ -25,7 +27,6 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
         businessName={contact.businessName}
         phone={contact.phone}
         whatsapp={contact.whatsapp}
-        whatsappMessage={contact.whatsappMessage}
       />
       <main id="main" className="flex-1">
         {children}
@@ -43,9 +44,9 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
           greeting={chatbot.greeting}
           suggestions={chatbot.suggestions}
           whatsapp={contact.whatsapp}
-          whatsappMessage={contact.whatsappMessage}
         />
       )}
     </div>
+    </EnquiryProvider>
   );
 }

@@ -8,8 +8,9 @@ import { ArrowUpRight, FileDown, Menu, Phone, X } from "lucide-react";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Logo, WhatsAppIcon } from "@/components/ui/brand-icons";
 import { buttonClasses } from "@/components/ui/button";
-import { cn, telLink, whatsappLink } from "@/lib/utils";
+import { cn, telLink } from "@/lib/utils";
 import { NAV_LINKS } from "./nav-links";
+import { EnquiryLink } from "./enquiry-dialog";
 
 
 function isActive(pathname: string, href: string) {
@@ -21,12 +22,10 @@ export function Navbar({
   businessName,
   phone,
   whatsapp,
-  whatsappMessage,
 }: {
   businessName: string;
   phone: string;
   whatsapp: string;
-  whatsappMessage: string;
 }) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
@@ -98,14 +97,9 @@ export function Navbar({
               <span className="hidden 2xl:inline">Catalogue</span>
             </a>
             {whatsapp ? (
-              <a
-                href={whatsappLink(whatsapp, whatsappMessage)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={buttonClasses({ size: "sm", className: "hidden md:inline-flex" })}
-              >
+              <EnquiryLink className={buttonClasses({ size: "sm", className: "hidden md:inline-flex" })}>
                 Get a quote <ArrowUpRight className="hidden size-4 xl:block" />
-              </a>
+              </EnquiryLink>
             ) : (
               <Link href="/contact" className={buttonClasses({ size: "sm", className: "hidden md:inline-flex" })}>
                 Contact us <ArrowUpRight className="hidden size-4 xl:block" />
@@ -158,14 +152,9 @@ export function Navbar({
                 </ul>
                 <div className="mt-auto flex flex-col gap-3 pt-10">
                   {whatsapp && (
-                    <a
-                      href={whatsappLink(whatsapp, whatsappMessage)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={buttonClasses({ variant: "whatsapp", size: "lg" })}
-                    >
+                    <EnquiryLink className={buttonClasses({ variant: "whatsapp", size: "lg" })} onClick={() => setOpen(false)}>
                       <WhatsAppIcon className="size-5" /> Chat on WhatsApp
-                    </a>
+                    </EnquiryLink>
                   )}
                   <a href="/catalog.pdf" download className={buttonClasses({ variant: "outline", size: "lg" })}>
                     <FileDown className="size-4" /> Download catalogue (PDF)
