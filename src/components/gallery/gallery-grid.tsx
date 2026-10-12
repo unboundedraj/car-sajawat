@@ -3,10 +3,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ChevronLeft, ChevronRight, Image as ImageIcon, Play, X } from "lucide-react";
-import { SmartImage } from "@/components/ui/smart-image";
-import { youtubeEmbed, youtubeThumb } from "@/lib/media";
+import { youtubeEmbed } from "@/lib/media";
 import type { MediaAsset } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { cn, masonryClass } from "@/lib/utils";
+import { MediaThumb } from "./media-thumb";
 
 type Filter = "all" | "image" | "video";
 
@@ -95,48 +95,33 @@ export function GalleryGrid({ media }: { media: MediaAsset[] }) {
           <p>No {filter === "all" ? "media" : filter === "image" ? "photos" : "videos"} here yet. Follow our work on Instagram!</p>
         </div>
       ) : (
-        <div className="mt-10 columns-2 gap-3 sm:gap-4 md:columns-3 lg:columns-4">
-          {visible.map((m, i) => {
-            const thumb = m.kind === "youtube" ? youtubeThumb(m.url) : m.kind === "image" ? m.url : null;
-            return (
-              <motion.button
-                key={m.id}
-                type="button"
-                layout
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: Math.min(i, 12) * 0.03 }}
-                onClick={() => setOpen(i)}
-                className="group relative mb-3 block w-full overflow-hidden rounded-2xl border border-line bg-surface-2 sm:mb-4"
-                aria-label={`Open ${m.title ?? m.kind}`}
-              >
-                <div className={cn("relative w-full", i % 3 === 0 ? "aspect-[3/4]" : i % 3 === 1 ? "aspect-square" : "aspect-[4/3]")}>
-                  {thumb ? (
-                    <SmartImage
-                      src={thumb}
-                      alt={m.title ?? "Car Sajawat work"}
-                      fill
-                      sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
-                      className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                  ) : (
-                    <video src={`${m.url}#t=0.5`} muted playsInline preload="metadata" className="absolute inset-0 size-full object-cover" />
-                  )}
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                {m.kind !== "image" && (
-                  <span className="absolute top-3 right-3 grid size-9 place-items-center rounded-full bg-accent text-accent-fg">
-                    <Play className="size-4 fill-current" />
-                  </span>
-                )}
-                {m.title && (
-                  <span className="absolute right-3 bottom-3 left-3 text-left text-sm font-semibold text-white opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-                    {m.title}
-                  </span>
-                )}
-              </motion.button>
-            );
-          })}
+        <div className={cn("mt-10", masonryClass(visible.length))}>
+          {visible.map((m, i) => (
+            <motion.button
+              key={m.id}
+              type="button"
+              layout
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: Math.min(i, 12) * 0.03 }}
+              onClick={() => setOpen(i)}
+              className="group relative mb-3 block w-full break-inside-avoid overflow-hidden rounded-2xl border border-line bg-surface-2 sm:mb-4"
+              aria-label={`Open ${m.title ?? m.kind}`}
+            >
+              <MediaThumb media={m} sizes={visible.length < 3 ? "(min-width: 640px) 50vw, 100vw" : "(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"} />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+              {m.kind !== "image" && (
+                <span className="absolute top-3 right-3 grid size-9 place-items-center rounded-full bg-accent text-accent-fg">
+                  <Play className="size-4 fill-current" />
+                </span>
+              )}
+              {m.title && (
+                <span className="absolute right-3 bottom-3 left-3 text-left text-sm font-semibold text-white opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+                  {m.title}
+                </span>
+              )}
+            </motion.button>
+          ))}
         </div>
       )}
 
