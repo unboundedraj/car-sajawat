@@ -52,4 +52,12 @@ export const DEFAULT_CONTENT: SiteContent = {
     knowledge: "",
   },
   testimonials: { items: [] },
+  payment: {
+    enabled: true,
+    title: "Pay your advance",
+    note: "Once we've discussed your enquiry and confirmed your booking, you can secure it by paying the advance amount with this UPI QR code.",
+    qrImage: "/upi-qr.png",
+    upiId: "rajee.hazari-1@okhdfcbank",
+    payeeName: "Rajee Hazari",
+  },
 };

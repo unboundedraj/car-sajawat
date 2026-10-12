@@ -58,12 +58,24 @@ export type ChatbotContent = {
 export type Testimonial = { name: string; vehicle: string; quote: string; rating: number };
 export type TestimonialsContent = { items: Testimonial[] };
 
+export type PaymentContent = {
+  /** Show the advance-payment card on the contact page */
+  enabled: boolean;
+  title: string;
+  note: string;
+  /** Image of the UPI QR code (square, white background) */
+  qrImage: string;
+  upiId: string;
+  payeeName: string;
+};
+
 export type SiteContent = {
   hero: HeroContent;
   about: AboutContent;
   contact: ContactContent;
   chatbot: ChatbotContent;
   testimonials: TestimonialsContent;
+  payment: PaymentContent;
 };
 
 export type SiteContentKey = keyof SiteContent;

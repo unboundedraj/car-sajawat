@@ -62,6 +62,18 @@ export const contentSchemas = {
     suggestions: z.array(text(80)).max(4),
     knowledge: text(8000),
   }),
+  payment: z.object({
+    enabled: z.boolean(),
+    title: required(80),
+    note: text(500),
+    qrImage: urlish,
+    upiId: z
+      .string()
+      .trim()
+      .max(80)
+      .refine((v) => v === "" || /^[\w.\-]{2,}@[a-zA-Z]{2,}$/.test(v), "Enter a UPI ID like name@bank"),
+    payeeName: text(80),
+  }),
   testimonials: z.object({
     items: z
       .array(
