@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { buildChatSystemPrompt } from "@/lib/chat-context";
 import { getSiteContent } from "@/lib/data";
-import { gemini, withModelFallback } from "@/lib/gemini";
+import { SOURCES_MARKER, type ChatSources } from "@/lib/chat-sources";
+import { gemini, isQuotaError, withModelFallback } from "@/lib/gemini";
 
 export const maxDuration = 30;
 
@@ -31,6 +32,11 @@ function rateLimited(ip: string) {
   return recent.length > LIMIT;
 }
 
+// Google Search grounding isn't part of every API plan. When Google refuses it (quota), answer
+// without it and stop trying for a while so visitors don't pay for the failed attempts.
+let searchPausedUntil = 0;
+const SEARCH_PAUSE_MS = 15 * 60 * 1000;
+
 export async function POST(request: Request) {
   const client = gemini();
   if (!client) {
@@ -58,25 +64,56 @@ export async function POST(request: Request) {
 
   try {
     const systemInstruction = await buildChatSystemPrompt();
-    const stream = await withModelFallback((model) =>
-      client.models.generateContentStream({
-        model,
-        contents: messages.map((m) => ({ role: m.role, parts: [{ text: m.text }] })),
-        config: {
-          systemInstruction,
-          temperature: 0.5,
-          // Room for "thinking" models plus a full catalogue answer
-          maxOutputTokens: 1024,
-        },
-      }),
-    );
+    const generate = (withSearch: boolean) =>
+      withModelFallback((model) =>
+        client.models.generateContentStream({
+          model,
+          contents: messages.map((m) => ({ role: m.role, parts: [{ text: m.text }] })),
+          config: {
+            systemInstruction,
+            // Lets the assistant look things up on the web when the catalogue and business facts don't cover a question
+            ...(withSearch ? { tools: [{ googleSearch: {} }] } : {}),
+            temperature: 0.5,
+            // Room for "thinking" models plus a researched answer
+            maxOutputTokens: 1500,
+          },
+        }),
+      );
+
+    let stream;
+    if (Date.now() < searchPausedUntil) {
+      stream = await generate(false);
+    } else {
+      try {
+        stream = await generate(true);
+      } catch (err) {
+        if (!isQuotaError(err)) throw err;
+        console.warn("[chat] Google Search grounding unavailable (quota); answering without web search for 15 minutes");
+        searchPausedUntil = Date.now() + SEARCH_PAUSE_MS;
+        stream = await generate(false);
+      }
+    }
 
     const encoder = new TextEncoder();
     const body = new ReadableStream<Uint8Array>({
       async start(controller) {
         try {
+          const seen = new Map<string, string>();
+          let suggestions: string | undefined;
           for await (const chunk of stream) {
             if (chunk.text) controller.enqueue(encoder.encode(chunk.text));
+            const grounding = chunk.candidates?.[0]?.groundingMetadata;
+            for (const g of grounding?.groundingChunks ?? []) {
+              if (g.web?.uri && !seen.has(g.web.uri)) seen.set(g.web.uri, g.web.title || new URL(g.web.uri).hostname);
+            }
+            if (grounding?.searchEntryPoint?.renderedContent) suggestions = grounding.searchEntryPoint.renderedContent;
+          }
+          if (seen.size || suggestions) {
+            const sources: ChatSources = {
+              links: [...seen].slice(0, 5).map(([url, title]) => ({ title, url })),
+              searchSuggestionsHtml: suggestions,
+            };
+            controller.enqueue(encoder.encode(SOURCES_MARKER + JSON.stringify(sources)));
           }
         } catch (err) {
           console.error("[chat] stream error:", err);
