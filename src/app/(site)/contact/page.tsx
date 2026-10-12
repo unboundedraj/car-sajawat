@@ -8,6 +8,7 @@ import { Reveal } from "@/components/ui/reveal";
 import { getCatalog, getSiteContent } from "@/lib/data";
 import { formatPhone, mapDirectionsUrl, telLink } from "@/lib/utils";
 import { EnquiryLink } from "@/components/site/enquiry-dialog";
+import { PaymentCard } from "@/components/site/payment-card";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ContactPage() {
-  const [{ contact }, catalog] = await Promise.all([getSiteContent(), getCatalog()]);
+  const [{ contact, payment }, catalog] = await Promise.all([getSiteContent(), getCatalog()]);
   const interests = catalog.filter((c) => c.kind === "service").map((c) => c.name);
 
   const cards = [
@@ -83,6 +84,12 @@ export default async function ContactPage() {
               );
             })}
           </div>
+
+          {payment.enabled && (payment.qrImage || payment.upiId) && (
+            <Reveal>
+              <PaymentCard payment={payment} businessName={contact.businessName} whatsapp={contact.whatsapp} />
+            </Reveal>
+          )}
 
           <div className="mt-12 grid gap-8 lg:grid-cols-5">
             <Reveal className="lg:col-span-3">
