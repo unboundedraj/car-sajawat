@@ -4,7 +4,8 @@ import { ArrowUpRight, Clock, FileDown, LockKeyhole, Mail, MapPin, Navigation, P
 import { FacebookIcon, InstagramIcon, Logo, WhatsAppIcon, YouTubeIcon } from "@/components/ui/brand-icons";
 import { buttonClasses } from "@/components/ui/button";
 import type { ContactContent } from "@/lib/types";
-import { mapDirectionsUrl, mapEmbedUrl, telLink, whatsappLink } from "@/lib/utils";
+import { mapDirectionsUrl, mapEmbedUrl, telLink } from "@/lib/utils";
+import { EnquiryLink } from "./enquiry-dialog";
 import { NAV_LINKS } from "./nav-links";
 
 export function MapEmbed({ contact, className }: { contact: ContactContent; className?: string }) {
@@ -20,7 +21,9 @@ export function MapEmbed({ contact, className }: { contact: ContactContent; clas
   );
 }
 
-type FooterLink = { label: string; href: string; external?: boolean; download?: boolean; icon?: ReactNode };
+const socialClass = "grid size-10 place-items-center rounded-full border border-line text-muted transition-colors hover:border-accent hover:bg-accent hover:text-accent-fg";
+
+type FooterLink = { label: string; href: string; external?: boolean; download?: boolean; enquiry?: boolean; icon?: ReactNode };
 
 function Column({ title, links, className }: { title: string; links: FooterLink[]; className?: string }) {
   if (links.length === 0) return null;
@@ -42,7 +45,9 @@ function Column({ title, links, className }: { title: string; links: FooterLink[
           );
           return (
             <li key={`${l.label}-${l.href}`}>
-              {l.external || l.download ? (
+              {l.enquiry ? (
+                <EnquiryLink className={cls}>{content}</EnquiryLink>
+              ) : l.external || l.download ? (
                 <a
                   href={l.href}
                   className={cls}
@@ -79,7 +84,7 @@ export function Footer({
     { href: contact.instagram, label: "Instagram", Icon: InstagramIcon },
     { href: contact.facebook, label: "Facebook", Icon: FacebookIcon },
     { href: contact.youtube, label: "YouTube", Icon: YouTubeIcon },
-    { href: contact.whatsapp ? whatsappLink(contact.whatsapp) : "", label: "WhatsApp", Icon: WhatsAppIcon },
+    { href: contact.whatsapp ? "#whatsapp" : "", label: "WhatsApp", Icon: WhatsAppIcon },
   ].filter((s) => s.href);
 
   const serviceLinks: FooterLink[] = [
@@ -90,7 +95,7 @@ export function Footer({
 
   const helpLinks: FooterLink[] = [
     contact.whatsapp
-      ? { label: "Get a quote on WhatsApp", href: whatsappLink(contact.whatsapp, contact.whatsappMessage), external: true }
+      ? { label: "Get a quote on WhatsApp", href: "#whatsapp", enquiry: true }
       : { label: "Get a quote", href: "/contact" },
     { label: "Request a callback", href: "/contact#enquiry" },
     { label: "PDF catalogue", href: "/catalog.pdf", download: true },
@@ -114,15 +119,15 @@ export function Footer({
             <ul className="mt-6 flex gap-2">
               {socials.map(({ href, label, Icon }) => (
                 <li key={label}>
-                  <a
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={label}
-                    className="grid size-10 place-items-center rounded-full border border-line text-muted transition-colors hover:border-accent hover:bg-accent hover:text-accent-fg"
-                  >
-                    <Icon className="size-4" />
-                  </a>
+                  {label === "WhatsApp" ? (
+                    <EnquiryLink aria-label={label} className={socialClass}>
+                      <Icon className="size-4" />
+                    </EnquiryLink>
+                  ) : (
+                    <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label} className={socialClass}>
+                      <Icon className="size-4" />
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>

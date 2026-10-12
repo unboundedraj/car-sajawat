@@ -7,7 +7,8 @@ import { Reveal } from "@/components/ui/reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { SmartImage } from "@/components/ui/smart-image";
 import type { AboutContent, CatalogItem, ContactContent, MediaAsset, TeamMember, Testimonial } from "@/lib/types";
-import { masonryClass, telLink, whatsappLink } from "@/lib/utils";
+import { masonryClass, telLink } from "@/lib/utils";
+import { EnquiryLink } from "@/components/site/enquiry-dialog";
 import { MediaThumb } from "@/components/gallery/media-thumb";
 import { TeamCard } from "./team-card";
 
@@ -329,14 +330,9 @@ export function QuoteCta({ contact }: { contact: ContactContent }) {
             </div>
             <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row lg:flex-col">
               {contact.whatsapp && (
-                <a
-                  href={whatsappLink(contact.whatsapp, contact.whatsappMessage)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-white px-8 font-semibold text-black transition-transform hover:-translate-y-0.5"
-                >
+                <EnquiryLink className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-white px-8 font-semibold text-black transition-transform hover:-translate-y-0.5">
                   <WhatsAppIcon className="size-5 text-[#25D366]" /> WhatsApp us
-                </a>
+                </EnquiryLink>
               )}
               {contact.phone && (
                 <a

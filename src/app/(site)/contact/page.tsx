@@ -6,7 +6,8 @@ import { PageHeader } from "@/components/site/page-header";
 import { WhatsAppIcon } from "@/components/ui/brand-icons";
 import { Reveal } from "@/components/ui/reveal";
 import { getCatalog, getSiteContent } from "@/lib/data";
-import { formatPhone, mapDirectionsUrl, telLink, whatsappLink } from "@/lib/utils";
+import { formatPhone, mapDirectionsUrl, telLink } from "@/lib/utils";
+import { EnquiryLink } from "@/components/site/enquiry-dialog";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -22,7 +23,7 @@ export default async function ContactPage() {
       Icon: WhatsAppIcon,
       label: "WhatsApp",
       value: formatPhone(contact.whatsapp),
-      href: whatsappLink(contact.whatsapp, contact.whatsappMessage),
+      href: "#whatsapp", // opens the enquiry popup
       hint: "Fastest way to get a quote",
     },
     { Icon: Phone, label: "Call", value: contact.phone, href: telLink(contact.phone), hint: contact.altPhone || "Talk to our team" },
@@ -52,23 +53,35 @@ export default async function ContactPage() {
       <section className="py-16 sm:py-20">
         <div className="container-x">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {cards.map(({ Icon, label, value, href, hint }, i) => (
-              <Reveal key={label} delay={i * 0.06}>
-                <a
-                  href={href}
-                  target={href.startsWith("http") ? "_blank" : undefined}
-                  rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-                  className="group card flex h-full flex-col p-6 transition-all duration-300 hover:-translate-y-1 hover:border-accent/60"
-                >
+            {cards.map(({ Icon, label, value, href, hint }, i) => {
+              const cardClass = "group card flex h-full flex-col p-6 transition-all duration-300 hover:-translate-y-1 hover:border-accent/60";
+              const inner = (
+                <>
                   <span className="grid size-12 place-items-center rounded-xl bg-accent/10 text-accent transition-colors group-hover:bg-accent group-hover:text-accent-fg">
                     <Icon className="size-5" />
                   </span>
                   <p className="mt-5 text-xs font-semibold uppercase tracking-widest text-muted">{label}</p>
                   <p className="mt-1 font-semibold break-words">{value}</p>
                   <p className="mt-auto pt-3 text-xs text-muted">{hint}</p>
-                </a>
-              </Reveal>
-            ))}
+                </>
+              );
+              return (
+                <Reveal key={label} delay={i * 0.06}>
+                  {label === "WhatsApp" ? (
+                    <EnquiryLink className={cardClass}>{inner}</EnquiryLink>
+                  ) : (
+                    <a
+                      href={href}
+                      target={href.startsWith("http") ? "_blank" : undefined}
+                      rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+                      className={cardClass}
+                    >
+                      {inner}
+                    </a>
+                  )}
+                </Reveal>
+              );
+            })}
           </div>
 
           <div className="mt-12 grid gap-8 lg:grid-cols-5">

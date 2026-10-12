@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { InstagramIcon, WhatsAppIcon } from "@/components/ui/brand-icons";
 import { cn, whatsappLink } from "@/lib/utils";
+import { EnquiryLink } from "./enquiry-dialog";
 import { FAB_SLOT } from "./fab-slots";
 
 /** Round floating button with a label that slides in on hover (desktop). */
@@ -10,8 +11,11 @@ function Fab({
   className,
   bubbleClassName,
   pulse,
+  enquiry,
   children,
 }: {
+  /** WhatsApp button: open the website's enquiry popup instead of leaving the site */
+  enquiry?: boolean;
   href: string;
   label: string;
   className: string;
@@ -19,10 +23,10 @@ function Fab({
   pulse?: string;
   children: ReactNode;
 }) {
+  const Link = enquiry ? EnquiryLink : "a";
   return (
-    <a
-      href={href}
-      {...(href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+    <Link
+      {...(enquiry ? {} : { href, ...(href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {}) })}
       aria-label={label}
       className={cn("group fixed right-4 z-40 flex items-center sm:right-6", className)}
     >
@@ -38,7 +42,7 @@ function Fab({
         {pulse && <span aria-hidden className={cn("absolute inset-0 animate-pulse-ring rounded-full", pulse)} />}
         {children}
       </span>
-    </a>
+    </Link>
   );
 }
 
@@ -51,6 +55,7 @@ export function WhatsAppFab({ number, message, slot }: { number: string; message
       className={FAB_SLOT[slot]}
       bubbleClassName="bg-[#25D366] shadow-[0_10px_30px_-6px_rgb(37_211_102/0.6)]"
       pulse="bg-[#25D366]"
+      enquiry
     >
       <WhatsAppIcon className="relative size-7" />
     </Fab>
