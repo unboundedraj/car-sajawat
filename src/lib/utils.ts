@@ -23,6 +23,23 @@ export function slugify(input: string) {
     .slice(0, 80);
 }
 
+/**
+ * Pre-filled WhatsApp enquiry. WhatsApp can't pre-fill typed answers, so the visitor gets a short
+ * form (name, car model, year, requirement) to complete before sending.
+ */
+export function enquiryMessage(businessName: string, interest?: string) {
+  const intro = interest ? `I'm interested in *${interest}*.` : "I'd like to make an enquiry.";
+  return `Hi ${businessName}! 👋\n${intro}\n\nMy details:\n*Name:* \n*Car model:* \n*Year:* \n*Requirement:* `;
+}
+
+/** "919324067900" → "+91 93240 67900" (other numbers are shown as +digits) */
+export function formatPhone(digits: string) {
+  const d = digits.replace(/\D/g, "");
+  if (!d) return "";
+  if (d.length === 12 && d.startsWith("91")) return `+91 ${d.slice(2, 7)} ${d.slice(7)}`;
+  return `+${d}`;
+}
+
 export function whatsappLink(number: string, message?: string) {
   const digits = number.replace(/\D/g, "");
   const text = message ? `?text=${encodeURIComponent(message)}` : "";
