@@ -221,3 +221,33 @@ body {
     animation-iteration-count: infinite !important;
   }
 }
+
+/* Gold button with a light that keeps travelling around its border */
+@property --orbit {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes orbit {
+  to { --orbit: 360deg; }
+}
+.gold-orbit {
+  border: 3px solid transparent;
+  color: var(--gold-fg);
+  background:
+    linear-gradient(180deg, var(--gold-bright), var(--gold) 140%) padding-box,
+    conic-gradient(from var(--orbit), #4a3506 0 35%, #8a6410 55%, var(--gold-bright) 80%, #ffffff 95%, #4a3506 100%) border-box;
+  box-shadow: 0 10px 30px -10px var(--gold-glow);
+  animation: orbit 3s linear infinite;
+}
+.gold-orbit:hover {
+  box-shadow: 0 14px 40px -8px var(--gold-glow);
+  transform: translateY(-2px);
+}
+/* The travelling light is the point of the button, so it keeps moving (slower) */
+@media (prefers-reduced-motion: reduce) {
+  .gold-orbit {
+    animation-duration: 6s !important;
+    animation-iteration-count: infinite !important;
+  }
+}

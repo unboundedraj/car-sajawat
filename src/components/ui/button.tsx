@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-type Variant = "primary" | "outline" | "ghost" | "whatsapp";
+type Variant = "primary" | "outline" | "ghost" | "whatsapp" | "gold";
 type Size = "sm" | "md" | "lg";
 
 const base =
@@ -14,6 +14,7 @@ const variants: Record<Variant, string> = {
   outline: "border border-line-strong text-fg hover:border-accent hover:text-accent",
   ghost: "text-fg hover:bg-surface-2",
   whatsapp: "bg-[#25D366] text-[#05290f] hover:bg-[#2ee676] hover:-translate-y-0.5",
+  gold: "gold-orbit",
 };
 
 const sizes: Record<Size, string> = {
