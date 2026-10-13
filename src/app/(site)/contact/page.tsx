@@ -3,12 +3,11 @@ import { Clock, Mail, MapPin, Navigation, Phone } from "lucide-react";
 import { EnquiryForm } from "@/components/site/enquiry-form";
 import { MapEmbed } from "@/components/site/footer";
 import { PageHeader } from "@/components/site/page-header";
-import { WhatsAppIcon } from "@/components/ui/brand-icons";
 import { Reveal } from "@/components/ui/reveal";
-import { getCatalog, getSiteContent } from "@/lib/data";
+import { getSiteContent } from "@/lib/data";
 import { formatPhone, mapDirectionsUrl, telLink } from "@/lib/utils";
-import { EnquiryLink } from "@/components/site/enquiry-dialog";
 import { PaymentCard } from "@/components/site/payment-card";
+import { PhoneCopyCard } from "@/components/site/phone-copy-card";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -16,16 +15,16 @@ export const metadata: Metadata = {
 };
 
 export default async function ContactPage() {
-  const [{ contact, payment }, catalog] = await Promise.all([getSiteContent(), getCatalog()]);
-  const interests = catalog.filter((c) => c.kind === "service").map((c) => c.name);
+  const { contact, payment } = await getSiteContent();
+  const hours = contact.hours.filter((h) => h.days.trim() || h.time.trim());
 
   const cards = [
     {
-      Icon: WhatsAppIcon,
-      label: "WhatsApp",
+      Icon: Phone,
+      label: "Phone",
       value: formatPhone(contact.whatsapp),
-      href: "#whatsapp", // opens the enquiry popup
-      hint: "Fastest way to get a quote",
+      href: "", // copied on click, see PhoneCopyCard
+      hint: "Fastest way to book an appointment / get a quote",
     },
     { Icon: Phone, label: "Call", value: contact.phone, href: telLink(contact.phone), hint: contact.altPhone || "Talk to our team" },
     { Icon: Mail, label: "Email", value: contact.email, href: `mailto:${contact.email}`, hint: "For detailed enquiries" },
@@ -53,7 +52,7 @@ export default async function ContactPage() {
 
       <section className="py-16 sm:py-20">
         <div className="container-x">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className={`grid gap-4 sm:grid-cols-2 ${cards.length === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4"}`}>
             {cards.map(({ Icon, label, value, href, hint }, i) => {
               const cardClass = "group card flex h-full flex-col p-6 transition-all duration-300 hover:-translate-y-1 hover:border-accent/60";
               const inner = (
@@ -68,8 +67,8 @@ export default async function ContactPage() {
               );
               return (
                 <Reveal key={label} delay={i * 0.06}>
-                  {label === "WhatsApp" ? (
-                    <EnquiryLink className={cardClass}>{inner}</EnquiryLink>
+                  {label === "Phone" ? (
+                    <PhoneCopyCard number={value} hint={hint} className={cardClass} />
                   ) : (
                     <a
                       href={href}
@@ -93,16 +92,16 @@ export default async function ContactPage() {
 
           <div className="mt-12 grid gap-8 lg:grid-cols-5">
             <Reveal className="lg:col-span-3">
-              <EnquiryForm interests={interests} />
+              <EnquiryForm />
             </Reveal>
             <Reveal delay={0.1} className="flex flex-col gap-6 lg:col-span-2">
-              {contact.hours.length > 0 && (
+              {hours.length > 0 && (
               <div className="card p-6 sm:p-8">
                 <h2 className="display flex items-center gap-2 text-2xl font-bold">
                   <Clock className="size-5 text-accent" /> Opening hours
                 </h2>
                 <dl className="mt-5 divide-y divide-line">
-                  {contact.hours.map((h) => (
+                  {hours.map((h) => (
                     <div key={h.days} className="flex justify-between gap-4 py-3 text-sm">
                       <dt className="font-medium">{h.days}</dt>
                       <dd className="text-right text-muted">{h.time}</dd>

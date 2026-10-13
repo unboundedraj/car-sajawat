@@ -4,6 +4,7 @@ import { useActionState, useEffect, useRef } from "react";
 import { CheckCircle2, Loader2, Send } from "lucide-react";
 import { submitEnquiry, type EnquiryState } from "@/app/(site)/contact/actions";
 import { Button } from "@/components/ui/button";
+import { ENQUIRY_INTERESTS } from "@/lib/interests";
 import { cn } from "@/lib/utils";
 
 const field =
@@ -29,7 +30,7 @@ function Field({
   );
 }
 
-export function EnquiryForm({ interests }: { interests: string[] }) {
+export function EnquiryForm() {
   const [state, action, pending] = useActionState<EnquiryState, FormData>(submitEnquiry, { status: "idle" });
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -51,24 +52,25 @@ export function EnquiryForm({ interests }: { interests: string[] }) {
         <Field label="Phone *" name="phone" error={err.phone}>
           <input id="phone" name="phone" type="tel" required autoComplete="tel" inputMode="tel" className={cn(field, err.phone && "border-accent")} placeholder="+91 98xxx xxxxx" />
         </Field>
-        <Field label="Email" name="email" error={err.email}>
-          <input id="email" name="email" type="email" autoComplete="email" className={cn(field, err.email && "border-accent")} placeholder="you@example.com" />
-        </Field>
         <Field label="Car make & model" name="vehicle" error={err.vehicle}>
           <input id="vehicle" name="vehicle" className={field} placeholder="e.g. Hyundai Creta 2024" />
         </Field>
+        <Field label="Interested in" name="interest">
+          <select id="interest" name="interest" className={field} defaultValue="">
+            <option value="">Select (optional)</option>
+            {Object.entries(ENQUIRY_INTERESTS).map(([group, options]) => (
+              <optgroup key={group} label={group}>
+                {options.map((o) => (
+                  <option key={o} value={o}>
+                    {o}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+            <option value="Other">Something else</option>
+          </select>
+        </Field>
       </div>
-      <Field label="Interested in" name="interest">
-        <select id="interest" name="interest" className={field} defaultValue="">
-          <option value="">Choose a service (optional)</option>
-          {interests.map((i) => (
-            <option key={i} value={i}>
-              {i}
-            </option>
-          ))}
-          <option value="Other">Something else</option>
-        </select>
-      </Field>
       <Field label="Message" name="message" error={err.message}>
         <textarea id="message" name="message" rows={4} className={cn(field, "resize-y")} placeholder="Anything we should know?" />
       </Field>
