@@ -120,6 +120,59 @@ function FormattedText({ text }: { text: string }) {
   );
 }
 
+/**
+ * On phones the chat is a full-screen sheet that follows the *visual* viewport, so the on-screen
+ * keyboard pushes nothing out of place, and the page behind it is locked while it is open.
+ */
+function useMobileSheet(open: boolean) {
+  const [mobile, setMobile] = useState(false);
+  const [box, setBox] = useState<{ top: number; height: number } | null>(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639px)");
+    const sync = () => setMobile(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  // Lock the page behind the sheet (position:fixed is the only lock iOS Safari respects)
+  useEffect(() => {
+    if (!open || !mobile) return;
+    const y = window.scrollY;
+    const { style } = document.body;
+    const prev = { position: style.position, top: style.top, width: style.width, overflow: style.overflow };
+    style.position = "fixed";
+    style.top = `-${y}px`;
+    style.width = "100%";
+    style.overflow = "hidden";
+    return () => {
+      style.position = prev.position;
+      style.top = prev.top;
+      style.width = prev.width;
+      style.overflow = prev.overflow;
+      window.scrollTo(0, y);
+    };
+  }, [open, mobile]);
+
+  // Match the sheet to what is actually visible (shrinks when the keyboard opens)
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!open || !mobile || !vv) return;
+    const sync = () => setBox({ top: vv.offsetTop, height: vv.height });
+    sync();
+    vv.addEventListener("resize", sync);
+    vv.addEventListener("scroll", sync);
+    return () => {
+      vv.removeEventListener("resize", sync);
+      vv.removeEventListener("scroll", sync);
+      setBox(null);
+    };
+  }, [open, mobile]);
+
+  return { mobile, box };
+}
+
 export function ChatWidget({
   slot,
   assistantName,
@@ -141,17 +194,24 @@ export function ChatWidget({
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const { mobile, box } = useMobileSheet(open);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
+  // Keyboard opened or closed: keep the latest message in view
   useEffect(() => {
-    if (open) inputRef.current?.focus();
+    if (box) scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
+  }, [box?.height]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    // On phones, focusing on open would pop the keyboard before the sheet has settled
+    if (open && !mobile) inputRef.current?.focus();
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
+  }, [open, mobile]);
 
   async function send(text: string) {
     const content = text.trim().slice(0, 1000);
@@ -237,9 +297,13 @@ export function ChatWidget({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.97 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            style={mobile ? { top: box?.top ?? 0, height: box?.height ?? "100dvh" } : undefined}
             className={cn(
-              "fixed inset-x-3 z-40 flex flex-col overflow-hidden rounded-3xl border border-line-strong bg-bg-elevated shadow-2xl sm:inset-x-auto sm:right-6 sm:w-[400px]",
+              "fixed z-70 flex flex-col overflow-hidden border-line-strong bg-bg-elevated shadow-2xl",
+              // Phones: full-screen sheet. Larger screens: floating panel above the chat button
+              "inset-x-0 sm:inset-x-auto sm:right-6 sm:w-[400px] sm:rounded-3xl sm:border",
               CHAT_PANEL_SLOT[slot],
+              "max-sm:bottom-auto max-sm:max-h-none",
             )}
           >
             <header className="relative flex items-center gap-3 overflow-hidden border-b border-line px-5 py-4">
@@ -264,9 +328,17 @@ export function ChatWidget({
                   <RotateCcw className="size-4" />
                 </button>
               )}
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="relative grid size-9 place-items-center rounded-full bg-surface-2 text-fg sm:hidden"
+                aria-label="Close chat assistant"
+              >
+                <X className="size-5" />
+              </button>
             </header>
 
-            <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-5 text-sm leading-relaxed" aria-live="polite">
+            <div ref={scrollRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-5 text-sm leading-relaxed" aria-live="polite">
               <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-surface-2 px-4 py-3">{greeting}</div>
               {messages.length === 0 && suggestions.length > 0 && (
                 <div className="flex flex-wrap gap-2 pt-1">
@@ -303,7 +375,7 @@ export function ChatWidget({
               )}
             </div>
 
-            <div className="border-t border-line p-3">
+            <div className="shrink-0 border-t border-line p-3">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -324,7 +396,7 @@ export function ChatWidget({
                   rows={1}
                   maxLength={1000}
                   placeholder="Ask about PPF, accessories, timings…"
-                  className="max-h-28 flex-1 resize-none bg-transparent py-1.5 text-sm outline-none placeholder:text-muted"
+                  className="max-h-28 flex-1 resize-none bg-transparent py-1.5 text-base outline-none placeholder:text-muted sm:text-sm"
                   aria-label="Message"
                 />
                 <button
