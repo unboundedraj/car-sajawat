@@ -128,7 +128,7 @@ export function Hero({ hero }: { hero: HeroContent }) {
             </ButtonLink>
           )}
           {hero.secondaryCta.label && (
-            <ButtonLink href={hero.secondaryCta.href || "/contact"} variant="outline" size="lg">
+            <ButtonLink href={hero.secondaryCta.href || "/contact"} variant="gold" size="lg">
               {hero.secondaryCta.label}
             </ButtonLink>
           )}
