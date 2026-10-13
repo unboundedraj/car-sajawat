@@ -4,7 +4,8 @@ import { ArrowUpRight, Clock, FileDown, LockKeyhole, Mail, MapPin, Navigation, P
 import { FacebookIcon, InstagramIcon, Logo, WhatsAppIcon, YouTubeIcon } from "@/components/ui/brand-icons";
 import { buttonClasses } from "@/components/ui/button";
 import type { ContactContent } from "@/lib/types";
-import { mapDirectionsUrl, mapEmbedUrl, telLink } from "@/lib/utils";
+import { CopyText } from "@/components/ui/copy-text";
+import { formatPhone, mapDirectionsUrl, mapEmbedUrl, telLink } from "@/lib/utils";
 import { EnquiryLink } from "./enquiry-dialog";
 import { NAV_LINKS } from "./nav-links";
 
@@ -162,6 +163,12 @@ export function Footer({
                 </a>
               </li>
             )}
+            {contact.whatsapp && (
+              <li className="flex gap-2">
+                <Phone className="mt-0.5 size-4 shrink-0 text-accent" />
+                <CopyText value={formatPhone(contact.whatsapp)} label="phone number" />
+              </li>
+            )}
             {contact.email && (
               <li>
                 <a href={`mailto:${contact.email}`} className="flex gap-2 break-all hover:text-accent">
@@ -170,7 +177,7 @@ export function Footer({
                 </a>
               </li>
             )}
-            {contact.hours.map((h) => (
+            {contact.hours.filter((h) => h.days.trim() || h.time.trim()).map((h) => (
               <li key={h.days} className="flex gap-2">
                 <Clock className="mt-0.5 size-4 shrink-0 text-accent" />
                 <span>
