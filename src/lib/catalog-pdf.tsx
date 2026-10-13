@@ -267,7 +267,9 @@ function loadPhoto(url: string): Promise<Photo | null> {
     try {
       const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
       if (!res.ok) return null;
-      const data = await sharp(Buffer.from(await res.arrayBuffer()))
+      const bytes = Buffer.from(await res.arrayBuffer());
+      if (bytes.length > 15 * 1024 * 1024) return null; // don't let one huge upload slow every download
+      const data = await sharp(bytes)
         .rotate()
         .resize(328, 248, { fit: "cover" })
         .flatten({ background: "#ffffff" })
