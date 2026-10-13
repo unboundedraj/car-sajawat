@@ -3,10 +3,11 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { Circle, Document, Font, Image, Link, Page, Path, Rect, StyleSheet, Svg, Text, View, renderToBuffer } from "@react-pdf/renderer";
 import type { ReactNode } from "react";
+import sharp from "sharp";
 import { BRAND_TAGLINE } from "./brand";
 import { formatPrice } from "./price";
 import type { CatalogItem, CatalogKind, Category, ContactContent } from "./types";
-import { formatPhone, mapDirectionsUrl, whatsappLink } from "./utils";
+import { formatPhone, mapDirectionsUrl } from "./utils";
 
 // Fonts are vendored in /assets/fonts (see outputFileTracingIncludes in next.config.ts).
 // Manrope's latin subset has no ₹ glyph, so the rupee sign uses the latin-ext file.
@@ -97,19 +98,26 @@ const s = StyleSheet.create({
   catCount: { fontSize: 7.5, color: C.muted, marginLeft: 6 },
   catDesc: { color: C.muted, fontSize: 8.5, marginLeft: 10, marginBottom: 4 },
 
-  // Item card
-  item: { borderWidth: 1, borderColor: C.line, borderRadius: 5, padding: 11, marginTop: 7 },
-  itemHead: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
-  itemNameBox: { flex: 1, paddingRight: 14 },
-  itemName: { fontWeight: 700, fontSize: 11, color: C.navy },
-  tagline: { color: C.muted, fontSize: 8.5, marginTop: 1 },
-  priceBox: { alignItems: "flex-end", borderWidth: 1, borderColor: "#ead9a6", backgroundColor: C.cream, borderRadius: 4, paddingHorizontal: 8, paddingVertical: 4, minWidth: 92 },
+  // Item table: photo | details | estimated cost
+  table: { borderWidth: 1, borderColor: C.line, borderRadius: 5, marginTop: 6 },
+  tHead: { flexDirection: "row", backgroundColor: C.soft, borderTopLeftRadius: 5, borderTopRightRadius: 5 },
+  th: { fontSize: 6.5, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: 1.2, paddingVertical: 5, paddingHorizontal: 8 },
+  tRow: { flexDirection: "row", borderTopWidth: 1, borderTopColor: C.line },
+  colPhoto: { width: 96, padding: 7 },
+  colItem: { flex: 1, paddingVertical: 8, paddingHorizontal: 8 },
+  colPrice: { width: 132, paddingVertical: 8, paddingHorizontal: 8, alignItems: "flex-end" },
+  photo: { width: 82, height: 62, borderRadius: 3, objectFit: "cover" },
+  noPhoto: { width: 82, height: 62, borderRadius: 3, backgroundColor: C.soft, alignItems: "center", justifyContent: "center" },
+  noPhotoText: { fontSize: 6.5, color: C.muted, textTransform: "uppercase", letterSpacing: 1 },
+  itemName: { fontWeight: 700, fontSize: 10.5, color: C.navy },
+  tagline: { color: C.muted, fontSize: 8, marginTop: 1 },
+  priceBox: { alignItems: "flex-end", borderWidth: 1, borderColor: "#ead9a6", backgroundColor: C.cream, borderRadius: 4, paddingHorizontal: 7, paddingVertical: 4 },
   priceLabel: { fontSize: 6, color: C.gold, textTransform: "uppercase", letterSpacing: 1.2, fontWeight: 700 },
   price: { fontWeight: 700, fontSize: 11, color: C.navy },
   priceNote: { fontSize: 7, color: C.muted },
   onRequest: { fontSize: 8, color: C.muted },
-  desc: { marginTop: 6, fontSize: 9 },
-  features: { flexDirection: "row", flexWrap: "wrap", marginTop: 6 },
+  desc: { marginTop: 4, fontSize: 8.5 },
+  features: { flexDirection: "row", flexWrap: "wrap", marginTop: 5 },
   feature: { fontSize: 7.5, backgroundColor: C.soft, color: C.navy, borderRadius: 3, paddingHorizontal: 5, paddingVertical: 2, marginRight: 4, marginBottom: 3 },
   itemLink: { fontSize: 7.5, color: C.gold, fontWeight: 700, marginTop: 4, textDecoration: "none" },
 
@@ -246,15 +254,76 @@ function socialHandle(url: string) {
   }
 }
 
-function Item({ item, siteUrl }: { item: CatalogItem; siteUrl: string | null }) {
+type Photo = { data: Buffer; format: "jpg" };
+type Photos = Map<string, Photo>;
+
+const photoCache = new Map<string, Promise<Photo | null>>();
+
+/** Item photo as a small JPEG (react-pdf only reads JPEG/PNG, and uploads may be WebP/AVIF). */
+function loadPhoto(url: string): Promise<Photo | null> {
+  const cached = photoCache.get(url);
+  if (cached) return cached;
+  const p = (async () => {
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+      if (!res.ok) return null;
+      const data = await sharp(Buffer.from(await res.arrayBuffer()))
+        .rotate()
+        .resize(328, 248, { fit: "cover" })
+        .flatten({ background: "#ffffff" })
+        .jpeg({ quality: 78 })
+        .toBuffer();
+      return { data, format: "jpg" as const };
+    } catch {
+      return null;
+    }
+  })();
+  photoCache.set(url, p);
+  // Retry a failed download next time instead of remembering the failure
+  void p.then((r) => r || photoCache.delete(url));
+  if (photoCache.size > 300) photoCache.delete(photoCache.keys().next().value!);
+  return p;
+}
+
+const photoUrl = (i: CatalogItem) => i.cover_image || i.images[0] || null;
+
+function Row({ item, photo, siteUrl }: { item: CatalogItem; photo: Photo | undefined; siteUrl: string | null }) {
   const price = formatPrice(item);
   return (
-    <View style={s.item} wrap={false}>
-      <View style={s.itemHead}>
-        <View style={s.itemNameBox}>
-          <Text style={s.itemName}>{item.name}</Text>
-          {item.tagline ? <Text style={s.tagline}>{item.tagline}</Text> : null}
-        </View>
+    <View style={s.tRow} wrap={false}>
+      <View style={s.colPhoto}>
+        {photo ? (
+          // eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image has no alt
+          <Image style={s.photo} src={photo} />
+        ) : (
+          <View style={s.noPhoto}>
+            <Text style={s.noPhotoText}>No photo</Text>
+          </View>
+        )}
+      </View>
+      <View style={s.colItem}>
+        <Text style={s.itemName}>{item.name}</Text>
+        {item.tagline ? <Text style={s.tagline}>{item.tagline}</Text> : null}
+        {item.description ? <Text style={s.desc}>{item.description}</Text> : null}
+        {item.features.length > 0 && (
+          <View style={s.features}>
+            {item.features.map((f) => (
+              <Text key={f} style={s.feature}>
+                {f}
+              </Text>
+            ))}
+          </View>
+        )}
+        {siteUrl && (
+          <Link src={`${siteUrl}/services/${item.slug}`} style={s.link}>
+            <View style={s.itemLinkRow}>
+              <Icon name="external" size={8} color={C.gold} />
+              <Text style={[s.itemLink, { marginTop: 0, marginLeft: 4 }]}>View more photos & details online</Text>
+            </View>
+          </Link>
+        )}
+      </View>
+      <View style={s.colPrice}>
         <View style={s.priceBox}>
           {price ? (
             <>
@@ -267,24 +336,16 @@ function Item({ item, siteUrl }: { item: CatalogItem; siteUrl: string | null }) 
           )}
         </View>
       </View>
-      {item.description ? <Text style={s.desc}>{item.description}</Text> : null}
-      {item.features.length > 0 && (
-        <View style={s.features}>
-          {item.features.map((f) => (
-            <Text key={f} style={s.feature}>
-              {f}
-            </Text>
-          ))}
-        </View>
-      )}
-      {siteUrl && (
-        <Link src={`${siteUrl}/services/${item.slug}`} style={s.link}>
-          <View style={s.itemLinkRow}>
-            <Icon name="external" size={8} color={C.gold} />
-            <Text style={[s.itemLink, { marginTop: 0, marginLeft: 4 }]}>View photos & details online</Text>
-          </View>
-        </Link>
-      )}
+    </View>
+  );
+}
+
+function TableHead() {
+  return (
+    <View style={s.tHead}>
+      <Text style={[s.th, { width: 96 }]}>Photo</Text>
+      <Text style={[s.th, { flex: 1 }]}>Item</Text>
+      <Text style={[s.th, { width: 132, textAlign: "right" }]}>Price</Text>
     </View>
   );
 }
@@ -293,11 +354,13 @@ function KindSection({
   kind,
   items,
   categories,
+  photos,
   siteUrl,
 }: {
   kind: CatalogKind;
   items: CatalogItem[];
   categories: Category[];
+  photos: Photos;
   siteUrl: string | null;
 }) {
   const ofKind = items.filter((i) => i.kind === kind);
@@ -316,28 +379,34 @@ function KindSection({
           {ofKind.length === 1 ? "" : "s"} · {groups.length} categor{groups.length === 1 ? "y" : "ies"}
         </Text>
       </View>
-      {groups.map((g) => (
-        <View key={g.name}>
-          {/* Keep each category heading together with its first item */}
-          <View wrap={false}>
-            <View style={s.catRow}>
-              <View style={s.catBar} />
-              <Text style={s.catName}>{g.name}</Text>
-              <Text style={s.catCount}>({g.items.length})</Text>
+      {groups.map((g) => {
+        const row = (item: CatalogItem) => {
+          const url = photoUrl(item);
+          return <Row key={item.id} item={item} photo={url ? photos.get(url) : undefined} siteUrl={siteUrl} />;
+        };
+        return (
+          <View key={g.name}>
+            {/* Keep each category heading together with the table header and first row */}
+            <View wrap={false} minPresenceAhead={80}>
+              <View style={s.catRow}>
+                <View style={s.catBar} />
+                <Text style={s.catName}>{g.name}</Text>
+                <Text style={s.catCount}>({g.items.length})</Text>
+              </View>
+              {g.description ? <Text style={s.catDesc}>{g.description}</Text> : null}
             </View>
-            {g.description ? <Text style={s.catDesc}>{g.description}</Text> : null}
-            <Item item={g.items[0]} siteUrl={siteUrl} />
+            <View style={s.table}>
+              <TableHead />
+              {g.items.map(row)}
+            </View>
           </View>
-          {g.items.slice(1).map((item) => (
-            <Item key={item.id} item={item} siteUrl={siteUrl} />
-          ))}
-        </View>
-      ))}
+        );
+      })}
     </View>
   );
 }
 
-export function renderCatalogPdf({
+export async function renderCatalogPdf({
   items,
   categories,
   contact,
@@ -356,17 +425,24 @@ export function renderCatalogPdf({
   const fbHandle = contact.facebook ? socialHandle(contact.facebook) : "";
   const directions = mapDirectionsUrl(contact.mapQuery || contact.address);
   const addressLines = contact.address.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  // Printed as plain text: customers save or copy it (WhatsApp is only offered on the website's floating button)
+  const mainNumber = formatPhone(contact.whatsapp);
+  const hours = contact.hours.filter((h) => h.days.trim() || h.time.trim());
+
+  const urls = [...new Set(items.map(photoUrl).filter((u): u is string => Boolean(u)))];
+  const loaded = await Promise.all(urls.map(loadPhoto));
+  const photos: Photos = new Map(urls.flatMap((u, i) => (loaded[i] ? [[u, loaded[i]] as const] : [])));
 
   // Cover panel (short) and closing block (complete), all as clickable links
   const quick = [
     contact.address && { label: "Visit", icon: "pin", value: contact.address, href: directions },
     phones[0] && { label: "Call", icon: "phone", value: phones[0], href: `tel:${phones[0].replace(/[^\d+]/g, "")}` },
-    contact.whatsapp && { label: "WhatsApp", icon: "whatsapp", value: formatPhone(contact.whatsapp), href: whatsappLink(contact.whatsapp, contact.whatsappMessage) },
+    mainNumber && { label: "Phone", icon: "phone", value: mainNumber },
     contact.email && { label: "Email", icon: "mail", value: contact.email, href: `mailto:${contact.email}` },
     igHandle && { label: "Instagram", icon: "instagram", value: igHandle, href: contact.instagram },
-  ].filter(Boolean) as { label: string; icon: IconName; value: string; href: string }[];
+  ].filter(Boolean) as { label: string; icon: IconName; value: string; href?: string }[];
 
-  const footerLine = [contact.businessName, phones[0], contact.whatsapp ? `WhatsApp ${formatPhone(contact.whatsapp)}` : "", contact.email, igHandle]
+  const footerLine = [contact.businessName, phones[0], mainNumber, contact.email, igHandle]
     .filter(Boolean)
     .join("   ·   ");
   const title = `${contact.businessName} – Products & Services Catalogue`;
@@ -430,8 +506,8 @@ export function renderCatalogPdf({
         {items.length === 0 && (
           <Text style={[s.desc, { marginTop: 18 }]}>Our catalogue is being updated. Please get in touch for current products and services.</Text>
         )}
-        <KindSection kind="product" items={items} categories={categories} siteUrl={siteUrl} />
-        <KindSection kind="service" items={items} categories={categories} siteUrl={siteUrl} />
+        <KindSection kind="product" items={items} categories={categories} photos={photos} siteUrl={siteUrl} />
+        <KindSection kind="service" items={items} categories={categories} photos={photos} siteUrl={siteUrl} />
 
         {/* Closing contact block */}
         <View style={s.contact} wrap={false}>
@@ -462,12 +538,10 @@ export function renderCatalogPdf({
                 ))}
               </View>
             )}
-            {contact.whatsapp ? (
+            {mainNumber ? (
               <View style={s.contactCell}>
-                <Text style={s.contactLabel}>WhatsApp</Text>
-                <ContactRow icon="whatsapp" href={whatsappLink(contact.whatsapp, contact.whatsappMessage)}>
-                  {formatPhone(contact.whatsapp)}
-                </ContactRow>
+                <Text style={s.contactLabel}>Phone</Text>
+                <ContactRow icon="phone">{mainNumber}</ContactRow>
               </View>
             ) : null}
             {contact.email ? (
@@ -502,10 +576,10 @@ export function renderCatalogPdf({
                 </ContactRow>
               </View>
             ) : null}
-            {contact.hours.length > 0 && (
+            {hours.length > 0 && (
               <View style={s.contactCell}>
                 <Text style={s.contactLabel}>Opening hours</Text>
-                <ContactRow icon="clock">{contact.hours.map((h) => `${h.days}: ${h.time}`).join("\n")}</ContactRow>
+                <ContactRow icon="clock">{hours.map((h) => `${h.days}: ${h.time}`).join("\n")}</ContactRow>
               </View>
             )}
           </View>
