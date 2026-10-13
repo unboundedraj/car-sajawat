@@ -49,5 +49,6 @@ export async function submitEnquiry(_prev: EnquiryState, formData: FormData): Pr
 
   times.push(now);
   recent.set(ip, times);
+  if (recent.size > 5000) recent.clear();
   return { status: "success", message: "Thanks! Our team will call you back shortly." };
 }
