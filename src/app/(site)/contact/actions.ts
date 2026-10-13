@@ -38,7 +38,6 @@ export async function submitEnquiry(_prev: EnquiryState, formData: FormData): Pr
     .from("enquiries")
     .insert({
       ...data,
-      email: data.email || null,
       vehicle: data.vehicle || null,
       interest: data.interest || null,
       message: data.message || null,

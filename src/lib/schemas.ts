@@ -157,7 +157,6 @@ export const enquirySchema = z.object({
     .string()
     .trim()
     .regex(/^[+\d][\d\s-]{6,18}$/, "Enter a valid phone number"),
-  email: z.union([z.literal(""), z.email("Enter a valid email")]),
   vehicle: text(80),
   interest: text(80),
   message: text(1500),
