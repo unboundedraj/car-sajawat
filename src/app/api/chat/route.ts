@@ -60,7 +60,9 @@ export async function POST(request: Request) {
     return new Response("Invalid request.", { status: 400 });
   }
   // Gemini expects the conversation to start with a user turn
-  const messages = parsed.messages.slice(parsed.messages.findIndex((m) => m.role === "user"));
+  const firstUser = parsed.messages.findIndex((m) => m.role === "user");
+  if (firstUser === -1) return new Response("Invalid request.", { status: 400 });
+  const messages = parsed.messages.slice(firstUser);
 
   try {
     const systemInstruction = await buildChatSystemPrompt();
