@@ -11,7 +11,7 @@ export function OfferStrip({ offers }: { offers: Offer[] }) {
   const duration = `${Math.max(20, base.length * 7)}s`;
 
   return (
-    <section aria-label="Current offers" className="relative z-10 -rotate-1 scale-[1.02] bg-accent text-accent-fg shadow-[0_20px_60px_-20px_var(--glow)]">
+    <section aria-label="Current offers" className="relative z-10 bg-accent text-accent-fg shadow-[0_20px_60px_-20px_var(--glow)]">
       <div className="group flex overflow-hidden py-3.5 sm:py-4">
         <ul
           className="flex shrink-0 animate-marquee items-center group-hover:[animation-play-state:paused]"
